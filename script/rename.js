@@ -3,7 +3,8 @@
  *
  * @author Andreas Gohr <gohr@cosmocode.de>
  */
-if(JSINFO.move_renameokay)
+ 
+    if(JSINFO && JSINFO.move_renameokay)
     jQuery('.plugin_move_page')
         .show()
         .click(function(e) {
