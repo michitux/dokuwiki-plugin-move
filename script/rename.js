@@ -3,7 +3,9 @@
  *
  * @author Andreas Gohr <gohr@cosmocode.de>
  */
- 
+
+
+jQuery(document).ready(function() {
     if(JSINFO && JSINFO.move_renameokay)
     jQuery('.plugin_move_page')
         .show()
@@ -81,3 +83,4 @@
                 }
             })
         });
+});
