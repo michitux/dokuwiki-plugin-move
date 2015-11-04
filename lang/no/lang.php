@@ -5,6 +5,7 @@
  * 
  * @author Daniel <daniel.raknes@hotmail.no>
  * @author Daniel Raknes <rada@jbv.no>
+ * @author Christopher Schive <chschive@frisurf.no>
  */
 $lang['menu']                  = 'Flytt sider og navnerom';
 $lang['inprogress']            = '(flytting avventer)';
@@ -17,6 +18,7 @@ $lang['exists']                = 'Siden %s kan ikke flyttes til %s, mål finnes 
 $lang['notargetperms']         = 'Du har ikke rettigheter til å lage siden %s.';
 $lang['medianotexist']         = 'Media-filen %s eksisterer ikke';
 $lang['nomediarights']         = 'Du har ikke rettigheter til å slette %s.';
+$lang['medianotchanged']       = 'Ingen ny plassering er gitt for siden %s (uendret plassering).';
 $lang['metamoveerror']         = 'Metafilene for siden %s kunne ikke flyttes.';
 $lang['mediamoveerror']        = 'Flytting av mediafilen %s feilet';
 $lang['moved']                 = 'Siden ble flyttet fra %s til %s';
