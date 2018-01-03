@@ -2,7 +2,8 @@
 
 /**
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
- * 
+ *
+ * @author mark prins <mprins@users.sf.net>
  * @author Gary Owen <gary@isection.co.uk>
  * @author Andre Dierick <ajmdierick@gmail.com>
  * @author Peter van Diest <peter.van.diest@xs4all.nl>
@@ -60,6 +61,7 @@ $lang['js']['newname']         = 'Nieuwe naam:';
 $lang['js']['inprogress']      = 'pagina hernoemen en links aanpassen...';
 $lang['js']['complete']        = 'Verplaatsing compleet.';
 $lang['js']['renameitem']      = 'Hernoem dit item';
+$lang['js']['add']             = 'Maak een nieuwe naamruimte';
 $lang['js']['duplicate']       = 'Sorry, "%s" bestaat al in deze namespace.';
 $lang['root']                  = '[Hoofdnamespace]';
 $lang['noscript']              = 'Deze mogelijkheid vereist Javascript';
