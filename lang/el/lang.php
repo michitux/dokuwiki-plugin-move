@@ -3,7 +3,7 @@
 /**
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  *
- * @author Katerina Katapodi <extragold1234@hotmail.com>
+ * @author Katerina Katapodi <katerinakatapodi@gmail.com>
  */
 $lang['menu']                  = 'Μετακινείστε σελίδες και κενά ονομάτων';
 $lang['inprogress']            = '(μετακίνηση εκκρεμοτήτων)';
@@ -20,7 +20,7 @@ $lang['medianotchanged']       = 'Ο νέος προορισμός που δόθ
 $lang['mediaexists']           = 'Τα μέσα %s δεν μπορούν να μετακινηθούν στο %s, ο προορισμός υπάρχει ήδη.';
 $lang['nomediatargetperms']    = 'Δεν έχετε άδεια να δημιουργήσετε τον φάκελλο μέσων ενημέρωσης %s';
 $lang['indexerror']            = 'Υπήρξε σφάλμα κατά την ενημέρωση του δείκτη %s.';
-$lang['metamoveerror']         = '5Οι φάκελλοι meta της σελίδας %s δεν μπόρεσαν να μετακινηθούν';
+$lang['metamoveerror']         = 'Οι φάκελλοι meta της σελίδας %s δεν μπόρεσαν να μετακινηθούν';
 $lang['atticmoveerror']        = 'Οι φάκελλοι attic της σελίδας  %s δεν μπόρεσαν να μετακινηθούν. Παρακαλώ μετακινήστε τους με το χέρι.';
 $lang['mediametamoveerror']    = 'Οι φάκελλοι meta του φακέλλου μέσων ενημέρωσης %s δεν μπόρεσαν να μετακινηθούν';
 $lang['mediamoveerror']        = 'Η μετακίνηση του φακέλλου μέσων ενημέρωσης %s απέτυχε';
