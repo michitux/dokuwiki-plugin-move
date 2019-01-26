@@ -341,10 +341,10 @@ class helper_plugin_move_plan extends DokuWiki_Plugin {
 
         $this->storeDocumentLists();
 
-        if(!$this->options['pages_all'] && !$this->options['media_all']) {
+/*        if(!$this->options['pages_all'] && !$this->options['media_all']) {
             msg($this->getLang('noaction'), -1);
             return false;
-        }
+        }*/
 
         $this->options['commited'] = true;
         $this->saveOptions();
