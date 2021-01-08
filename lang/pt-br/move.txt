@@ -1,0 +1,10 @@
+====== Mover ======
+
+Este plug-in permite mover e/ou renomear a página atual ou mover e/ou renomear o espaço de nome atual dentro das seguintes restrições:
+
+  * Você deve ter permissão de edição para a página atual/todas as páginas no espaço de nome atual.
+  * As páginas movidas não devem ser bloqueadas para edição.
+  * Para mover uma página, você também precisa possuir permissão de criação no espaço de nome de destino.
+  * Você não pode mover uma página para um espaço de nome onde já exista uma página com o mesmo nome.
+
+Todos os links de e para as páginas movidas serão atualizados para refletir o novo local e/ou nome.
