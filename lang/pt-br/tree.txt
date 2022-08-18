@@ -1,0 +1,7 @@
+====== Gerenciador de Movimentação =====
+
+Esta interface permite que você reorganize os espaços de nomes, páginas e arquivos de mídia do seu wiki por meio de arrastar e soltar.
+
+Para mover muitos namespaces, páginas ou arquivos de mídia para o mesmo destino, você pode usar as caixas de seleção da seguinte forma:
+  * marque os espaços de nomes, páginas ou arquivos de mídia que deseja mover;
+  * ao mover um dos itens marcados para o destino desejado, todos os itens selecionados serão movidos para este destino.
