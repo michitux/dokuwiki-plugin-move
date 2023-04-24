@@ -28,7 +28,7 @@ class helper_plugin_move_rewrite extends DokuWiki_Plugin {
     /**
      * What is they filename of the lockfile
      */
-    const LOCKFILENAME = '_plugin_move.lock';
+    const LOCKFILENAME = 'plugin_move.lock';
 
     /**
      * @var string symbol to make move operations easily recognizable in change log
