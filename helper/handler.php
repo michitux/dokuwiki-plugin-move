@@ -9,7 +9,7 @@
 // must be run within Dokuwiki
 if(!defined('DOKU_INC')) die();
 
-use dokuwiki\File\PageResolver;
+use dokuwiki\File\Resolver;
 use dokuwiki\File\MediaResolver;
 
 /**
@@ -69,7 +69,7 @@ class helper_plugin_move_handler extends DokuWiki_Plugin {
 
         if($type != 'media' && $type != 'page') throw new Exception('Not a valid type');
 
-        $old = (new PageResolver($this->origNS))->resolveId($old);
+        $old = (new FileResolver($this->origNS))->resolveId($old);
 
         if($type == 'page') {
             // FIXME this simply assumes that the link pointed to :$conf['start'], but it could also point to another page
@@ -390,3 +390,4 @@ class helper_plugin_move_handler extends DokuWiki_Plugin {
     }
 
 }
+
