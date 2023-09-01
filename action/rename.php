@@ -37,6 +37,13 @@ class action_plugin_move_rename extends DokuWiki_Action_Plugin {
         global $INFO;
         global $INPUT;
         global $USERINFO;
+        
+        if ( !isset($USERINFO['grps']) ){
+            $USERINFO['grps'] = '';
+        }
+        if ( !isset($INFO['id']) ){
+            $INFO['id'] = '';
+        }
 
         $JSINFO['move_renameokay'] = $this->renameOkay($INFO['id']);
         $JSINFO['move_allowrename'] = auth_isMember($this->getConf('allowrename'), $INPUT->server->str('REMOTE_USER'), (array) $USERINFO['grps']);
@@ -70,6 +77,9 @@ class action_plugin_move_rename extends DokuWiki_Action_Plugin {
      */
     public function addsvgbutton(Doku_Event $event) {
         global $INFO, $JSINFO;
+        if ( !isset($JSINFO['move_renameokay']) ){
+            $JSINFO['move_renameokay'] = '';
+        }
         if(
             $event->data['view'] !== 'page' ||
             !$this->getConf('pagetools_integration') ||
