@@ -9,6 +9,8 @@
 // must be run within Dokuwiki
 if(!defined('DOKU_INC')) die();
 
+use dokuwiki\File\MediaResolver;
+
 /**
  * Handler class for move. It does the actual rewriting of the content.
  *
@@ -138,7 +140,8 @@ class helper_plugin_move_handler extends DokuWiki_Plugin {
                 $old = $conf['start'];
             }
         } else {
-            resolve_mediaid($this->ns, $old, $exists);
+            $old = (new MediaResolver($this->ns))->resolveId($old);
+            $exists = page_exists($old);
         }
         if($old == $new) {
             return $relold; // old link still resolves, keep as is
