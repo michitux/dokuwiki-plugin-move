@@ -39,7 +39,8 @@ class action_plugin_move_rename extends DokuWiki_Action_Plugin {
         global $USERINFO;
 
         $JSINFO['move_renameokay'] = $this->renameOkay($INFO['id']);
-        $JSINFO['move_allowrename'] = auth_isMember($this->getConf('allowrename'), $INPUT->server->str('REMOTE_USER'), (array) $USERINFO['grps']);
+        // Can only use the variable if it is defined
+        $JSINFO['move_allowrename'] = auth_isMember($this->getConf('allowrename'), $INPUT->server->str('REMOTE_USER'), isset($USERINFO['grps'])?$USERINFO['grps']:[]);
     }
 
     /**
