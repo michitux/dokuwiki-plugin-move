@@ -1,6 +1,9 @@
 <?php
+
 namespace dokuwiki\plugin\move;
+
 use dokuwiki\Menu\Item\AbstractItem;
+
 /**
  * Class MenuItem
  *
@@ -8,14 +11,15 @@ use dokuwiki\Menu\Item\AbstractItem;
  *
  * @package dokuwiki\plugin\move
  */
-class MenuItem extends AbstractItem {
-
+class MenuItem extends AbstractItem
+{
     /** @var string icon file */
     protected $svg = __DIR__ . '/images/rename.svg';
 
     protected $type = "plugin_move";
 
-    public function getLinkAttributes($classprefix = 'menuitem ') {
+    public function getLinkAttributes($classprefix = 'menuitem ')
+    {
         $attr = parent::getLinkAttributes($classprefix);
         if (empty($attr['class'])) {
             $attr['class'] = '';
@@ -28,7 +32,8 @@ class MenuItem extends AbstractItem {
      *
      * @return string
      */
-    public function getLabel() {
+    public function getLabel()
+    {
         $hlp = plugin_load('action', 'move_rename');
         return $hlp->getLang('renamepage');
     }
