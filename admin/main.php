@@ -1,4 +1,7 @@
 <?php
+
+use dokuwiki\Extension\AdminPlugin;
+
 /**
  * Plugin : Move
  *
@@ -8,17 +11,18 @@
  */
 
 // must be run within Dokuwiki
-if(!defined('DOKU_INC')) die();
+if (!defined('DOKU_INC')) die();
 
 /**
  * Admin component of the move plugin. Provides the user interface.
  */
-class admin_plugin_move_main extends DokuWiki_Admin_Plugin {
-
+class admin_plugin_move_main extends AdminPlugin
+{
     /** @var helper_plugin_move_plan $plan */
     protected $plan;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->plan = plugin_load('helper', 'move_plan');
     }
 
@@ -26,9 +30,10 @@ class admin_plugin_move_main extends DokuWiki_Admin_Plugin {
      * @param $language
      * @return string
      */
-    public function getMenuText($language) {
+    public function getMenuText($language)
+    {
         $label = $this->getLang('menu');
-        if($this->plan->isCommited()) $label .= ' '.$this->getLang('inprogress');
+        if ($this->plan->isCommited()) $label .= ' ' . $this->getLang('inprogress');
         return $label;
     }
 
@@ -38,7 +43,8 @@ class admin_plugin_move_main extends DokuWiki_Admin_Plugin {
      *
      * @return int The sort number
      */
-    function getMenuSort() {
+    public function getMenuSort()
+    {
         return 1011;
     }
 
@@ -47,23 +53,25 @@ class admin_plugin_move_main extends DokuWiki_Admin_Plugin {
      *
      * @return bool false
      */
-    function forAdminOnly() {
+    public function forAdminOnly()
+    {
         return false;
     }
 
     /**
      * Handle the input
      */
-    function handle() {
+    public function handle()
+    {
         global $INPUT;
 
         // create a new plan if possible and sufficient data was given
         $this->createPlanFromInput();
 
         // handle workflow button presses
-        if($this->plan->isCommited()) {
+        if ($this->plan->isCommited()) {
             helper_plugin_move_rewrite::addLock(); //todo: right place?
-            switch($INPUT->str('ctl')) {
+            switch ($INPUT->str('ctl')) {
                 case 'continue':
                     $this->plan->nextStep();
                     break;
@@ -80,9 +88,10 @@ class admin_plugin_move_main extends DokuWiki_Admin_Plugin {
     /**
      * Display the interface
      */
-    function html() {
+    public function html()
+    {
         // decide what to do based on the plan's state
-        if($this->plan->isCommited()) {
+        if ($this->plan->isCommited()) {
             $this->GUI_progress();
         } else {
             // display form
@@ -95,32 +104,33 @@ class admin_plugin_move_main extends DokuWiki_Admin_Plugin {
      *
      * @return bool
      */
-    protected function createPlanFromInput() {
+    protected function createPlanFromInput()
+    {
         global $INPUT;
         global $ID;
 
-        if($this->plan->isCommited()) return false;
+        if ($this->plan->isCommited()) return false;
 
         $this->plan->setOption('autoskip', $INPUT->bool('autoskip'));
         $this->plan->setOption('autorewrite', $INPUT->bool('autorewrite'));
 
-        if($ID && $INPUT->has('dst')) {
+        if ($ID && $INPUT->has('dst')) {
             $dst = trim($INPUT->str('dst'));
-            if($dst == '') {
+            if ($dst == '') {
                 msg($this->getLang('nodst'), -1);
                 return false;
             }
 
             // input came from form
-            if($INPUT->str('class') == 'namespace') {
+            if ($INPUT->str('class') == 'namespace') {
                 $src = getNS($ID);
 
-                if($INPUT->str('type') == 'both') {
+                if ($INPUT->str('type') == 'both') {
                     $this->plan->addPageNamespaceMove($src, $dst);
                     $this->plan->addMediaNamespaceMove($src, $dst);
-                } else if($INPUT->str('type') == 'page') {
+                } elseif ($INPUT->str('type') == 'page') {
                     $this->plan->addPageNamespaceMove($src, $dst);
-                } else if($INPUT->str('type') == 'media') {
+                } elseif ($INPUT->str('type') == 'media') {
                     $this->plan->addMediaNamespaceMove($src, $dst);
                 }
             } else {
@@ -128,22 +138,22 @@ class admin_plugin_move_main extends DokuWiki_Admin_Plugin {
             }
             $this->plan->commit();
             return true;
-        } elseif($INPUT->has('json')) {
+        } elseif ($INPUT->has('json')) {
             // input came via JSON from tree manager
             $json = new JSON(JSON_LOOSE_TYPE);
             $data = $json->decode($INPUT->str('json'));
 
-            foreach((array) $data as $entry) {
-                if($entry['class'] == 'ns') {
-                    if($entry['type'] == 'page') {
+            foreach ((array) $data as $entry) {
+                if ($entry['class'] == 'ns') {
+                    if ($entry['type'] == 'page') {
                         $this->plan->addPageNamespaceMove($entry['src'], $entry['dst']);
-                    } elseif($entry['type'] == 'media') {
+                    } elseif ($entry['type'] == 'media') {
                         $this->plan->addMediaNamespaceMove($entry['src'], $entry['dst']);
                     }
-                } elseif($entry['class'] == 'doc') {
-                    if($entry['type'] == 'page') {
+                } elseif ($entry['class'] == 'doc') {
+                    if ($entry['type'] == 'page') {
                         $this->plan->addPageMove($entry['src'], $entry['dst']);
-                    } elseif($entry['type'] == 'media') {
+                    } elseif ($entry['type'] == 'media') {
                         $this->plan->addMediaMove($entry['src'], $entry['dst']);
                     }
                 }
@@ -159,30 +169,31 @@ class admin_plugin_move_main extends DokuWiki_Admin_Plugin {
     /**
      * Display the simple move form
      */
-    protected function GUI_simpleForm() {
+    protected function GUI_simpleForm()
+    {
         global $ID;
 
         echo $this->locale_xhtml('move');
 
-        $treelink = wl($ID, array('do'=>'admin', 'page'=>'move_tree'));
+        $treelink = wl($ID, ['do' => 'admin', 'page' => 'move_tree']);
         echo '<p id="plugin_move__treelink">';
         printf($this->getLang('treelink'), $treelink);
         echo '</p>';
 
-        $form = new Doku_Form(array('action' => wl($ID), 'method' => 'post', 'class' => 'plugin_move_form'));
+        $form = new Doku_Form(['action' => wl($ID), 'method' => 'post', 'class' => 'plugin_move_form']);
         $form->addHidden('page', 'move_main');
         $form->addHidden('id', $ID);
 
         $form->startFieldset($this->getLang('legend'));
 
-        $form->addElement(form_makeRadioField('class', 'page', $this->getLang('movepage') . ' <code>' . $ID . '</code>', '', 'block radio click-page', array('checked' => 'checked')));
+        $form->addElement(form_makeRadioField('class', 'page', $this->getLang('movepage') . ' <code>' . $ID . '</code>', '', 'block radio click-page', ['checked' => 'checked']));
         $form->addElement(form_makeRadioField('class', 'namespace', $this->getLang('movens') . ' <code>' . getNS($ID) . '</code>', '', 'block radio click-ns'));
 
         $form->addElement(form_makeTextField('dst', $ID, $this->getLang('dst'), '', 'block indent'));
-        $form->addElement(form_makeMenuField('type', array('pages' => $this->getLang('move_pages'), 'media' => $this->getLang('move_media'), 'both' => $this->getLang('move_media_and_pages')), 'both', $this->getLang('content_to_move'), '', 'block indent select'));
+        $form->addElement(form_makeMenuField('type', ['pages' => $this->getLang('move_pages'), 'media' => $this->getLang('move_media'), 'both' => $this->getLang('move_media_and_pages')], 'both', $this->getLang('content_to_move'), '', 'block indent select'));
 
-        $form->addElement(form_makeCheckboxField('autoskip', '1', $this->getLang('autoskip'), '', 'block', ($this->getConf('autoskip') ? array('checked' => 'checked') : array())));
-        $form->addElement(form_makeCheckboxField('autorewrite', '1', $this->getLang('autorewrite'), '', 'block', ($this->getConf('autorewrite') ? array('checked' => 'checked') : array())));
+        $form->addElement(form_makeCheckboxField('autoskip', '1', $this->getLang('autoskip'), '', 'block', ($this->getConf('autoskip') ? ['checked' => 'checked'] : [])));
+        $form->addElement(form_makeCheckboxField('autorewrite', '1', $this->getLang('autorewrite'), '', 'block', ($this->getConf('autorewrite') ? ['checked' => 'checked'] : [])));
 
         $form->addElement(form_makeButton('submit', 'admin', $this->getLang('btn_start')));
         $form->endFieldset();
@@ -192,14 +203,15 @@ class admin_plugin_move_main extends DokuWiki_Admin_Plugin {
     /**
      * Display the GUI while the move progresses
      */
-    protected function GUI_progress() {
+    protected function GUI_progress()
+    {
         echo '<div id="plugin_move__progress">';
 
         echo $this->locale_xhtml('progress');
 
         $progress = $this->plan->getProgress();
 
-        if(!$this->plan->inProgress()) {
+        if (!$this->plan->inProgress()) {
             echo '<div id="plugin_move__preview">';
             echo '<p>';
             echo '<strong>' . $this->getLang('intro') . '</strong> ';
@@ -207,13 +219,12 @@ class admin_plugin_move_main extends DokuWiki_Admin_Plugin {
             echo '</p>';
             echo $this->plan->previewHTML();
             echo '</div>';
-
         }
 
         echo '<div class="progress" data-progress="' . $progress . '">' . $progress . '%</div>';
 
         echo '<div class="output">';
-        if($this->plan->getLastError()) {
+        if ($this->plan->getLastError()) {
             echo '<p><div class="error">' . $this->plan->getLastError() . '</div></p>';
         } elseif ($this->plan->inProgress()) {
             echo '<p><div class="info">' . $this->getLang('inexecution') . '</div></p>';
@@ -244,27 +255,28 @@ class admin_plugin_move_main extends DokuWiki_Admin_Plugin {
      * @param string $control
      * @param bool   $show should this control be visible?
      */
-    protected function btn($control, $show = true) {
+    protected function btn($control, $show = true)
+    {
         global $ID;
 
         $skip  = 0;
         $label = $this->getLang('btn_' . $control);
         $id    = $control;
-        if($control == 'start') $control = 'continue';
-        if($control == 'retry') {
+        if ($control == 'start') $control = 'continue';
+        if ($control == 'retry') {
             $control = 'continue';
             $skip    = 0;
         }
 
         $class = 'move__control ctlfrm-' . $id;
-        if(!$show) $class .= ' hide';
+        if (!$show) $class .= ' hide';
 
-        $form = new Doku_Form(array('action' => wl($ID), 'method' => 'post', 'class' => $class));
+        $form = new Doku_Form(['action' => wl($ID), 'method' => 'post', 'class' => $class]);
         $form->addHidden('page', 'move_main');
         $form->addHidden('id', $ID);
         $form->addHidden('ctl', $control);
         $form->addHidden('skip', $skip);
-        $form->addElement(form_makeButton('submit', 'admin', $label, array('class' => 'btn ctl-' . $control)));
+        $form->addElement(form_makeButton('submit', 'admin', $label, ['class' => 'btn ctl-' . $control]));
         $form->printForm();
     }
 }
