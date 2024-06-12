@@ -28,7 +28,7 @@ class helper_plugin_move_rewrite extends DokuWiki_Plugin {
     /**
      * What is they filename of the lockfile
      */
-    const LOCKFILENAME = '_plugin_move.lock';
+    const LOCKFILENAME = 'plugin_move.lock';
 
     /**
      * @var string symbol to make move operations easily recognizable in change log
@@ -154,7 +154,7 @@ class helper_plugin_move_rewrite extends DokuWiki_Plugin {
         global $PLUGIN_MOVE_WORKING;
         global $conf;
         $PLUGIN_MOVE_WORKING = $PLUGIN_MOVE_WORKING ? $PLUGIN_MOVE_WORKING + 1 : 1;
-        $lockfile = $conf['lockdir'] . self::LOCKFILENAME;
+        $lockfile = $conf['lockdir'] . '/' . self::LOCKFILENAME;
         if (!file_exists($lockfile)) {
             io_savefile($lockfile, "1\n");
         } else {
