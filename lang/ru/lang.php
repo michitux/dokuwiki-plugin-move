@@ -5,6 +5,7 @@
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  *
+ * @author Impeck <impeck@ya.ru>
  * @author Aleksandr Selivanov <alexgearbox@yandex.ru>
  * @author S'Adm*n <s-adm_n@mail.ru>
  * @author Chang Zhao <admin@zen-do.ru>
@@ -23,6 +24,7 @@ $lang['nomediarights']         = 'У вас недостаточно прав д
 $lang['medianotchanged']       = 'Не задано нового названия %s (адрес не изменён).';
 $lang['mediaexists']           = 'Невозможно переместить %s - уже существует страница %s.';
 $lang['nomediatargetperms']    = 'У вас недостаточно прав для создания медиафайла %s.';
+$lang['extensionchange']       = 'Расширение нового файла отличается от оригинала.';
 $lang['indexerror']            = 'Ошибка при обновлении индексирования поиска %s';
 $lang['metamoveerror']         = 'Не удалось переместить медиафайлы страницы %s';
 $lang['atticmoveerror']        = 'Не удалось переместить архивы (attic) страницы %s. Переместите их вручную.';
@@ -56,6 +58,7 @@ $lang['nodst']                 = 'Не задано новое имя';
 $lang['noaction']              = 'Не было задано перемещений';
 $lang['renamepage']            = 'Переименовать страницу';
 $lang['cantrename']            = 'Сейчас не удаётся переименовать страницу. Попробуйте позже.';
+$lang['notallowed']            = 'Вам не разрешено переименовывать страницы или медиафайлы.';
 $lang['js']['rename']          = 'Переименовать';
 $lang['js']['cancel']          = 'Отменить';
 $lang['js']['newname']         = 'Новое название:';
@@ -64,6 +67,8 @@ $lang['js']['complete']        = 'Перемещение завершено.';
 $lang['js']['renameitem']      = 'Переименовать';
 $lang['js']['add']             = 'Создать новое пространство имён';
 $lang['js']['duplicate']       = 'Не получается: „%s“ уже существует в данной папке.';
+$lang['js']['moveButton']      = 'Переместить файл';
+$lang['js']['dialogIntro']     = 'Введите новое местоположение файла. Вы можете изменить пространство имён, но не расширение файла.';
 $lang['root']                  = '[Корневой каталог]';
 $lang['noscript']              = 'Для этого требуется включить JavaScript';
 $lang['moveinprogress']        = 'Сейчас происходит другая операция перемещения; пока она не закончена, данный инструмент не работает.';
