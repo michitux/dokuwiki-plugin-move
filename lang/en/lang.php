@@ -72,6 +72,7 @@ $lang['notallowed']       = 'You are not allowed to rename pages or media.';
 $lang['js']['rename']     = 'Rename';
 $lang['js']['cancel']     = 'Cancel';
 $lang['js']['newname']    = 'New name:';
+$lang['js']['rename_media']  = 'Move referenced media files along with the page';
 $lang['js']['inprogress'] = 'renaming page and adjusting links...';
 $lang['js']['complete']   = 'Move operation finished.';
 
