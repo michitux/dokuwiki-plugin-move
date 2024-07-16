@@ -1,260 +1,587 @@
 /**
- * Script for the tree management interface
- */
-
-var $GUI = jQuery('#plugin_move__tree');
-
-$GUI.show();
-jQuery('#plugin_move__treelink').show();
-
-/**
- * Checks if the given list item was moved in the tree
+ * The Tree Move Manager
  *
- * Moved elements are highlighted and a title shows where they came from
+ * This script handles the move tree and all its interactions.
  *
- * @param {jQuery} $li
- */
-var checkForMovement = function ($li) {
-    // we need to check this LI and all previously moved sub LIs
-    var $all = $li.add($li.find('li.moved'));
-    $all.each(function () {
-        var $this = jQuery(this);
-        var oldid = $this.data('id');
-        var newid = determineNewID($this);
-
-        if (newid != oldid && !$this.hasClass('created')) {
-            $this.addClass('moved');
-            $this.children('div').attr('title', oldid + ' -> ' + newid);
-        } else {
-            $this.removeClass('moved');
-            $this.children('div').attr('title', '');
-        }
-    });
-};
-
-/**
- * Check if the given name is allowed in the given parent
+ * The script supports combined and separate page/media trees. Items have their orignal ID in data-orig and their
+ * current ID in data-id.
  *
- * @param {jQuery} $li the edited or moved LI
- * @param {jQuery} $parent the (new) parent of the edited or moved LI
- * @param {string} name the (new) name to check
- * @returns {boolean}
+ * This is pure vanilla JavaScript without any dependencies to jQuery. It is lazy loaded by the main script.
  */
-var checkNameAllowed = function ($li, $parent, name) {
-    var ok = true;
-    $parent.children('li').each(function () {
-        if (this === $li[0]) return;
-        var cname = 'type-f';
-        if ($li.hasClass('type-d')) cname = 'type-d';
+class PluginMoveTree {
+    #ENDPOINT = DOKU_BASE + 'lib/exe/ajax.php?call=plugin_move_tree';
 
-        var $this = jQuery(this);
-        if ($this.data('name') == name && $this.hasClass(cname)) ok = false;
-    });
-    return ok;
-};
+    icons = {
+        'close': 'M10,4H4C2.89,4 2,4.89 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8C22,6.89 21.1,6 20,6H12L10,4Z',
+        'open': 'M19,20H4C2.89,20 2,19.1 2,18V6C2,4.89 2.89,4 4,4H10L12,6H19A2,2 0 0,1 21,8H21L4,8V18L6.14,10H23.21L20.93,18.5C20.7,19.37 19.92,20 19,20Z',
+        'page': 'M13,9H18.5L13,3.5V9M6,2H14L20,8V20A2,2 0 0,1 18,22H6C4.89,22 4,21.1 4,20V4C4,2.89 4.89,2 6,2M15,18V16H6V18H15M18,14V12H6V14H18Z',
+        'media': 'M13,9V3.5L18.5,9M6,2C4.89,2 4,2.89 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2H6Z',
+        'rename': 'M18,4V3A1,1 0 0,0 17,2H5A1,1 0 0,0 4,3V7A1,1 0 0,0 5,8H17A1,1 0 0,0 18,7V6H19V10H9V21A1,1 0 0,0 10,22H12A1,1 0 0,0 13,21V12H21V4H18Z',
+        'drag': 'M4 4V22H20V24H4C2.9 24 2 23.1 2 22V4H4M15 7H20.5L15 1.5V7M8 0H16L22 6V18C22 19.11 21.11 20 20 20H8C6.89 20 6 19.1 6 18V2C6 .89 6.89 0 8 0M17 16V14H8V16H17M20 12V10H8V12H20Z',
+    };
 
-/**
- * Returns the new ID of a given list item
- *
- * @param {jQuery} $li
- * @returns {string}
- */
-var determineNewID = function ($li) {
-    var myname = $li.data('name');
+    #mainElement;
+    #mediaTree;
+    #pageTree;
+    #dragTarget;
+    #dragIcon;
 
-    var $parent = $li.parent().closest('li');
-    if ($parent.length) {
-        return (determineNewID($parent) + ':' + myname).replace(/^:/, '');
-    } else {
-        return myname;
+    /**
+     * Initialize the base tree and attach all event handlers
+     *
+     * @param {HTMLElement} main
+     */
+    constructor(main) {
+        this.#mainElement = main;
+        this.#mediaTree = this.#mainElement.querySelector('.move-media');
+        this.#pageTree = this.#mainElement.querySelector('.move-pages');
+
+        this.loadSubTree('', 'pages');
+        this.loadSubTree('', 'media');
+
+        this.#dragIcon = this.icon('drag');
+        this.#dragIcon.classList.add('drag-icon');
+        this.#mainElement.appendChild(this.#dragIcon);
+
+        this.#mainElement.addEventListener('click', this.clickHandler.bind(this));
+        this.#mainElement.addEventListener('dragstart', this.dragStartHandler.bind(this));
+        this.#mainElement.addEventListener('dragover', this.dragOverHandler.bind(this));
+        this.#mainElement.addEventListener('drop', this.dragDropHandler.bind(this));
+        this.#mainElement.addEventListener('dragend', this.dragEndHandler.bind(this));
+        this.#mainElement.querySelector('form').addEventListener('submit', this.submitHandler.bind(this));
+
+        // make tree visible
+        this.#mainElement.style.display = 'block';
     }
-};
 
-/**
- * Very simplistic cleanID() in JavaScript
- *
- * Strips out namespaces
- *
- * @param {string} id
- */
-var cleanID = function (id) {
-    if (!id) return '';
+    /**
+     * Handle all item clicks
+     *
+     * @param {MouseEvent} ev
+     */
+    clickHandler(ev) {
+        const target = ev.target;
+        const li = target.closest('li');
+        if (!li) return;
 
-    id = id.replace(/[!"#$%§&\'()+,/;<=>?@\[\]^`\{|\}~\\;:\/\*]+/g, '_');
-    id = id.replace(/^_+/, '');
-    id = id.replace(/_+$/, '');
-    id = id.toLowerCase();
+        // we want to handle clicks on these elements only
+        const clicked = target.closest('i,button,span');
 
-    return id;
-};
-
-/**
- * Initialize the drag & drop-tree at the given li (must be this).
- */
-var initTree = function () {
-    var $li = jQuery(this);
-    var my_root = $li.closest('.tree_root')[0];
-    $li.draggable({
-        revert: true,
-        revertDuration: 0,
-        opacity: 0.5,
-        stop : function(event, ui) {
-            ui.helper.css({height: "auto", width: "auto"});
+        // icon click selects the item
+        if (clicked.tagName.toLowerCase() === 'i') {
+            ev.stopPropagation();
+            li.classList.toggle('selected');
+            return;
         }
-    }).droppable({
-        tolerance: 'pointer',
-        greedy: true,
-        accept : function(draggable) {
-            return my_root == draggable.closest('.tree_root')[0];
-        },
-        drop : function (event, ui) {
-            var $dropped = ui.draggable;
-            var $me = jQuery(this);
 
-            if ($dropped.children('div.li').children('input').prop('checked')) {
-                $dropped = $dropped.add(
-                    jQuery(my_root)
-                    .find('input')
-                    .filter(function() {
-                        return jQuery(this).prop('checked');
-                    }).parent().parent()
-                );
+        // button click opens rename dialog
+        if (clicked.tagName.toLowerCase() === 'button') {
+            ev.stopPropagation();
+            this.renameGui(li);
+            return;
+        }
+
+        // click on name opens/closes namespace
+        if (clicked.tagName.toLowerCase() === 'span' && li.classList.contains('move-ns')) {
+            ev.stopPropagation();
+            this.toggleNamespace(li);
+        }
+    }
+
+    /**
+     * Submit the data for the move operation
+     *
+     * @param {FormDataEvent} ev
+     */
+    submitHandler(ev) {
+        // gather all changed items
+        const data = [];
+        this.#mainElement.querySelectorAll('.changed').forEach(li => {
+            let entry = {
+                src: li.dataset.orig,
+                dst: li.dataset.id,
+                type: this.isItemMedia(li) ? 'media' : 'page',
+                class: this.isItemNamespace(li) ? 'ns' : 'doc',
+            };
+            data.push(entry);
+
+            // if this is a namspace that is shared between media and pages, add a second entry
+            if(entry.class === 'ns' && entry.type === 'media'  && this.isItemPage(li)) {
+                entry = {...entry}; // clone
+                entry.type = 'page';
+                data.push(entry);
             }
+        });
 
-            if ($me.parents().addBack().is($dropped)) {
+        // add JSON data to form, then let the event continue
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'json';
+        input.value = JSON.stringify(data);
+        ev.target.appendChild(input);
+    }
+
+    /**
+     * Begin drag operation
+     *
+     * @param {DragEvent} ev
+     */
+    dragStartHandler(ev) {
+        if (!ev.target) return;
+        const li = ev.target.closest('li');
+        if (!li) return;
+
+        ev.dataTransfer.setData('text/plain', li.dataset.id); // FIXME needed?
+        ev.dataTransfer.effectAllowed = 'move';
+        ev.dataTransfer.setDragImage(this.#dragIcon, -12, -12);
+
+        // the dragged element is always selected
+        li.classList.add('selected');
+    }
+
+    /**
+     * Higlight drop zone and allow dropping
+     *
+     * @param {DragEvent} ev
+     */
+    dragOverHandler(ev) {
+        if (!ev.target) return;  // the element the mouse is over
+        const ul = ev.target.closest('ul');
+        if (!ul) return;
+        ev.preventDefault(); // allow drop
+
+        if (this.#dragTarget && this.#dragTarget !== ul) {
+            this.#dragTarget.classList.remove('drop-zone');
+        }
+        this.#dragTarget = ul;
+        this.#dragTarget.classList.add('drop-zone');
+    }
+
+    /**
+     * Handle the Drop operation
+     *
+     * @param {DragEvent} ev
+     */
+    dragDropHandler(ev) {
+        if (!ev.target) return;
+        const dst = ev.target.closest('ul');
+        if (!dst) return;
+
+        // move all selected items to the drop target
+        const elements = this.#mainElement.querySelectorAll('.selected');
+        elements.forEach(src => {
+            const newID = this.getNewId(src.dataset.id, dst.dataset.id);
+            // ensure that item stays in its own tree, ignore cross-tree moves
+            if (this.itemTree(src).contains(dst) === false) {
                 return;
             }
 
-            var insert_child = !($me.hasClass("type-f") || $me.hasClass("closed"));
-            var $new_parent = insert_child ? $me.children('ul') : $me.parent();
-            var allowed = true;
-
-            $dropped.each(function () {
-                var $this = jQuery(this);
-                allowed &= checkNameAllowed($this, $new_parent, $this.data('name'));
-            });
-
-            if (allowed) {
-                if (insert_child) {
-                    $dropped.prependTo($new_parent);
-                } else {
-                    $dropped.insertAfter($me);
-                }
+            // same ID? we consider this an abort
+            if(newID === src.dataset.id) {
+                src.classList.remove('selected');
+                return;
             }
 
-            checkForMovement($dropped);
+            // moving into self? ignore
+            if(dst.contains(src)) {
+                return;
+            }
+
+            // check if item with same ID already exists
+            if (this.itemTree(src).querySelector(`li[data-id="${newID}"]`)) {
+                alert(LANG.plugins.move.duplicate.replace('%s', newID));
+                return;
+            }
+            dst.append(src);
+            this.updateMovedItem(src, newID);
+        });
+        this.updatePassiveSubNamespaces(dst);
+        this.sortList(dst);
+    }
+
+    /**
+     * Clean up after drag'n'drop operation
+     *
+     * @param {DragEvent} ev
+     */
+    dragEndHandler(ev) {
+        if (this.#dragTarget) {
+            this.#dragTarget.classList.remove('drop-zone');
         }
-    })
-    // add title to rename icon
-    .find('img.rename').attr('title', LANG.plugins.move.renameitem)
-    .end()
-    .find('img.add').attr('title', LANG.plugins.move.add);
-};
+    }
 
-var add_template = '<li class="type-d open created" data-name="%s" data-id="%s"><div class="li"><input type="checkbox"> <a href="%s" class="idx_dir">%s</a><img class="rename" src="' + DOKU_BASE + 'lib/plugins/move/images/rename.png"></div><ul class="tree_list"></ul></li>';
+    /**
+     * Rename an item via a prompt dialog
+     *
+     * @param li
+     */
+    renameGui(li) {
+        const newname = window.prompt(LANG.plugins.move.renameitem, this.getBase(li.dataset.id));
+        const clean = this.cleanID(newname);
 
-/**
- * Attach event listeners to the tree
- */
-$GUI.find('div.tree_root > ul.tree_list')
-    .click(function (e) {
-        var $clicky = jQuery(e.target);
-        var $li = $clicky.parent().parent();
-
-        if ($clicky[0].tagName == 'A' && $li.hasClass('type-d')) {  // Click on folder - open and close via AJAX
-            e.stopPropagation();
-            if ($li.hasClass('open')) {
-                $li
-                    .removeClass('open')
-                    .addClass('closed');
-
-            } else {
-                $li
-                    .removeClass('closed')
-                    .addClass('open');
-
-                // if had not been loaded before, load via AJAX
-                if (!$li.find('ul').length) {
-                    var is_media = $li.closest('div.tree_root').hasClass('tree_media') ? 1 : 0;
-                    jQuery.post(
-                        DOKU_BASE + 'lib/exe/ajax.php',
-                        {
-                            call: 'plugin_move_tree',
-                            ns: $clicky.attr('href'),
-                            is_media: is_media
-                        },
-                        function (data) {
-                            $li.append(data);
-                            $li.find('li').each(initTree);
-                        }
-                    );
-                }
-            }
-            e.preventDefault();
-        } else if ($clicky[0].tagName == 'IMG') { // Click on IMG - do rename
-            e.stopPropagation();
-            var $a = $clicky.parent().find('a');
-
-            if ($clicky.hasClass('rename')) {
-                var newname = window.prompt(LANG.plugins.move.renameitem, $li.data('name'));
-                newname = cleanID(newname);
-                if (newname) {
-                    if (checkNameAllowed($li, $li.parent(), newname)) {
-                        $li.data('name', newname);
-                        $a.text(newname);
-                        checkForMovement($li);
-                    } else {
-                        alert(LANG.plugins.move.duplicate.replace('%s', newname));
-                    }
-                }
-            } else {
-                var newname = window.prompt(LANG.plugins.move.add); 
-                newname = cleanID(newname);
-                if (newname) {
-                    if (checkNameAllowed($li, $li.children('ul'), newname)) {
-                        var $new_li = jQuery(add_template.replace(/%s/g, newname));
-                        $li.children('ul').prepend($new_li);
-
-                        $new_li.each(initTree);
-                    } else {
-                        alert(LANG.plugins.move.duplicate.replace('%s', newname));
-                    }
-                }
-            }
-            e.preventDefault();
+        if (!clean) {
+            return;
         }
-    }).find('li').each(initTree);
 
-/**
- * Gather all moves from the trees and put them as JSON into the form before submit
- *
- * @fixme has some duplicate code
- */
-jQuery('#plugin_move__tree_execute').submit(function (e) {
-    var data = [];
+        // avoid extension changes for media items
+        if (!this.isItemNamespace(li) && this.isItemMedia(li)) {
+            if (this.getExtension(li.dataset.id) !== this.getExtension(clean)) {
+                alert(LANG.plugins.move.extchange);
+                return;
+            }
+        }
 
-    $GUI.find('.tree_pages .moved').each(function (idx, el) {
-        var $el = jQuery(el);
-        var newid = determineNewID($el);
+        // construct new ID and check for duplicate
+        const ns = this.getNamespace(li.dataset.id);
+        const newID = ns ? ns + ':' + clean : clean;
+        if (this.itemTree(li).querySelector(`li[data-id="${newID}"]`)) {
+            alert(LANG.plugins.move.duplicate.replace('%s', newID));
+            return;
+        }
 
-        data[data.length] = {
-            'class': $el.hasClass('type-d') ? 'ns' : 'doc',
-            type: 'page',
-            src: $el.data('id'),
-            dst: newid
-        };
-    });
-    $GUI.find('.tree_media .moved').each(function (idx, el) {
-        var $el = jQuery(el);
-        var newid = determineNewID($el);
+        // update the item
+        this.updateMovedItem(li, newID);
 
-        data[data.length] = {
-            'class': $el.hasClass('type-d') ? 'ns' : 'doc',
-            type: 'media',
-            src: $el.data('id'),
-            dst: newid
-        };
-    });
+        // if this was a namespace, update sub namespaces
+        if (this.isItemNamespace(li)) {
+            this.updatePassiveSubNamespaces(li.querySelector('ul'));
+        }
+    }
 
-    jQuery(this).find('input[name=json]').val(JSON.stringify(data));
-});
+
+    /**
+     * Open or close a namespace
+     *
+     * @param li
+     */
+    toggleNamespace(li) {
+        const isOpen = li.classList.toggle('open');
+
+        // swap icon
+        const icon = li.querySelector('i');
+        icon.parentNode.insertBefore(this.icon(isOpen ? 'open' : 'close'), icon);
+        icon.remove();
+
+        if (isOpen) {
+            // check if UL already exists and reuse it
+            let ul = li.querySelector('ul');
+            if (ul) {
+                ul.style.display = '';
+                return;
+            }
+
+            // create new UL
+            ul = document.createElement('ul');
+            ul.classList = li.classList;
+            ul.dataset.id = li.dataset.id;
+            ul.dataset.orig = li.dataset.orig;
+            li.appendChild(ul);
+
+            if (li.classList.contains('move-pages')) {
+                this.loadSubTree(li.dataset.orig, 'pages');
+            }
+            if (li.classList.contains('move-media')) {
+                this.loadSubTree(li.dataset.orig, 'media');
+            }
+        } else {
+            const ul = li.querySelector('ul');
+            if (ul) {
+                ul.style.display = 'none';
+            }
+        }
+    }
+
+    /**
+     * Load the data for a namespace
+     *
+     * @param {string} namespace
+     * @param {string} type
+     * @returns {Promise<void>}
+     */
+    async loadSubTree(namespace, type) {
+
+        const data = new FormData;
+        data.append('ns', namespace);
+        data.append('is_media', type === 'media' ? 1 : 0);
+
+        const response = await fetch(this.#ENDPOINT, {
+            method: 'POST',
+            body: data
+        });
+        const result = await response.json();
+
+        this.renderSubTree(namespace, result, type);
+    }
+
+    /**
+     * Render the data for a namespace
+     *
+     * @param {string} namespace
+     * @param {object[]} data
+     * @param {string} type
+     */
+    renderSubTree(namespace, data, type) {
+        const selector = `ul[data-orig="${namespace}"].move-${type}.move-ns`;
+        const parent = this.#mainElement.querySelector(selector);
+
+        for (const item of data) {
+            let li;
+            // reuse namespace
+            if (item.type === 'd') {
+                li = parent.querySelector(`li[data-orig="${item.id}"].move-ns`);
+            }
+            // create new item
+            if (!li) {
+                li = this.createListItem(item, type);
+                parent.appendChild(li);
+            }
+            // ensure class is added to reused namespaces
+            li.classList.add(`move-${type}`);
+        }
+
+        this.sortList(parent);
+        this.updatePassiveSubNamespaces(parent); // subtree might have been loaded into a renamed namespace
+    }
+
+    /**
+     * Sort the children of the given element
+     *
+     * namespaces are sorted first, then by ID
+     *
+     * @param {HTMLUListElement} parent
+     */
+    sortList(parent) {
+        [...parent.children]
+            .sort((a, b) => {
+                // sort namespaces first
+                if (a.classList.contains('move-ns') && !b.classList.contains('move-ns')) {
+                    return -1;
+                }
+                if (!a.classList.contains('move-ns') && b.classList.contains('move-ns')) {
+                    return 1;
+                }
+                // sort by ID
+                return a.dataset.id.localeCompare(b.dataset.id);
+            })
+            .forEach(node => parent.appendChild(node));
+    }
+
+    /**
+     * Update the IDs of all sub-namespaces without marking them as moved
+     *
+     * The update is not marked as a change, because it will be covered in the move of an upper namespace.
+     * But updating the ID ensures that all drags that go into this namespace will already reflect the new namespace.
+     *
+     * @param {HTMLUListElement} parent
+     */
+    updatePassiveSubNamespaces(parent) {
+        const ns = parent.dataset.id; // parent is the namespace
+
+        for (const li of parent.children) {
+            if(!this.isItemNamespace(li)) continue;
+
+            const newID = this.getNewId(li.dataset.id, ns);
+            li.dataset.id = newID;
+
+            const sub = li.getElementsByTagName('ul');
+            if (sub.length) {
+                sub[0].dataset.id = newID;
+                this.updatePassiveSubNamespaces(sub[0]);
+            }
+        }
+    }
+
+    /**
+     * Get the new ID when moving an item to a new namespace
+     *
+     * @param oldId
+     * @param newNS
+     * @returns {string}
+     */
+    getNewId(oldId, newNS) {
+        const base = this.getBase(oldId);
+        return newNS ? newNS + ':' + base : base;
+    }
+
+    /**
+     * Adjust the ID of a moved item
+     *
+     * @param {HTMLLIElement} li The item to rename
+     * @param {string} newID The new ID
+     */
+    updateMovedItem(li, newID) {
+        const name = li.querySelector('span');
+
+        if (li.dataset.id !== newID) {
+            li.dataset.id = newID;
+            li.classList.add('changed');
+            name.textContent = this.getBase(newID);
+            name.title = li.dataset.orig + ' → ' + newID;
+
+            const ul = li.querySelector('ul');
+            if (ul) {
+                ul.dataset.id = newID;
+            }
+        } else {
+            li.classList.remove('changed');
+            name.title = '';
+        }
+    }
+
+    /**
+     * Check if an item is a namespace item
+     *
+     * @param {HTMLLIElement} li
+     * @returns {boolean}
+     */
+    isItemNamespace(li) {
+        return li.classList.contains('move-ns');
+    }
+
+    /**
+     * Check if an item is a media item
+     *
+     * @param {HTMLLIElement} li
+     * @returns {boolean}
+     */
+    isItemMedia(li) {
+        return li.classList.contains('move-media');
+    }
+
+    /**
+     * Check if an item is a page item
+     *
+     * @param {HTMLLIElement} li
+     * @returns {boolean}
+     */
+    isItemPage(li) {
+        return li.classList.contains('move-pages');
+    }
+
+    /**
+     * Get the tree for the given item
+     *
+     * @param li
+     * @returns {HTMLUListElement}
+     */
+    itemTree(li) {
+        if (this.isItemMedia(li)) {
+            return this.#mediaTree;
+        } else {
+            return this.#pageTree;
+        }
+    }
+
+    /**
+     * Create a list item
+     *
+     * @param {object} item
+     * @param {string} type
+     * @returns {HTMLLIElement}
+     */
+    createListItem(item, type) {
+        const li = document.createElement('li');
+        li.dataset.id = item.id;
+        li.dataset.orig = item.id; // track the original ID
+        li.classList.add(`move-${type}`);
+        li.draggable = true;
+
+        const wrapper = document.createElement('div');
+        wrapper.classList.add('li');
+        li.appendChild(wrapper);
+
+        let icon;
+        if (item.type === 'd') {
+            li.classList.add('move-ns');
+            icon = this.icon('close');
+        } else if (type === 'media') {
+            icon = this.icon('media');
+        } else {
+            icon = this.icon('page');
+        }
+        icon.title = LANG.plugins.move.select;
+        wrapper.appendChild(icon);
+
+        const name = document.createElement('span');
+        name.textContent = this.getBase(item.id);
+        wrapper.appendChild(name);
+
+        const renameBtn = document.createElement('button');
+        this.icon('rename', renameBtn);
+        renameBtn.title = LANG.plugins.move.renameitem;
+        wrapper.appendChild(renameBtn);
+
+        return li;
+    }
+
+    /**
+     * Create an icon element
+     *
+     * @param {string} type
+     * @param {HTMLElement} element The element to insert the SVG into, a new <i> if not given
+     * @returns {HTMLElement}
+     */
+    icon(type, element = null) {
+        if (!element) {
+            element = document.createElement('i');
+        }
+
+        element.classList.add('icon');
+        element.innerHTML = `<svg viewBox="0 0 24 24"><path d="${this.icons[type]}" /></svg>`;
+        return element;
+    }
+
+    /**
+     * Get the base part (filename) of an ID
+     *
+     * @param {string} id
+     * @returns {string}
+     */
+    getBase(id) {
+        return id.split(':').slice(-1)[0];
+    }
+
+    /**
+     * Get the extension part of an ID
+     *
+     * This isn't perfect, but adds some safety
+     *
+     * @param {string} id
+     * @returns {string}
+     */
+    getExtension(id) {
+        const parts = id.split('.');
+        return parts.length > 1 ? parts.pop() : '';
+    }
+
+    /**
+     * Get the namespace part of an ID
+     *
+     * @param {string} id
+     * @returns {string}
+     */
+    getNamespace(id) {
+        if (id.includes(':') === false) {
+            return '';
+        }
+        return id.split(':').slice(0, -1).join(':');
+    }
+
+    /**
+     * Very simplistic cleanID() in JavaScript
+     *
+     * Strips out namespaces
+     *
+     * @param {string} id
+     */
+    cleanID(id) {
+        if (!id) return '';
+
+        id = id.replace(/[!"#$%§&'()+,\/;<=>?@\[\]^`{|}~\\:*\s]+/g, '_');
+        id = id.replace(/^_+/, '');
+        id = id.replace(/_+$/, '');
+        id = id.toLowerCase();
+
+        return id;
+    };
+}
