@@ -51,13 +51,10 @@ class action_plugin_move_tree extends DokuWiki_Action_Plugin {
             $type = admin_plugin_move_tree::TYPE_PAGES;
         }
 
-        $data = $plugin->tree($type, $ns, $ns);
+        header('Content-Type: application/json');
 
-        echo html_buildlist(
-            $data, 'tree_list',
-            array($plugin, 'html_list'),
-            array($plugin, 'html_li')
-        );
+        $data = $plugin->tree($type, $ns, $ns);
+        echo json_encode($data);
     }
 
 }
