@@ -36,8 +36,6 @@ class PluginMoveTree {
         this.#mediaTree = this.#mainElement.querySelector('.move-media');
         this.#pageTree = this.#mainElement.querySelector('.move-pages');
 
-        this.loadSubTree('', 'pages');
-        this.loadSubTree('', 'media');
 
         this.#dragIcon = this.icon('drag');
         this.#dragIcon.classList.add('drag-icon');
@@ -50,8 +48,25 @@ class PluginMoveTree {
         this.#mainElement.addEventListener('dragend', this.dragEndHandler.bind(this));
         this.#mainElement.querySelector('form').addEventListener('submit', this.submitHandler.bind(this));
 
+        // load and open the initial tree
+        this.#init();
+
         // make tree visible
         this.#mainElement.style.display = 'block';
+    }
+
+    /**
+     * Initialize the tree
+     *
+     * @returns {Promise<void>}
+     */
+    async #init() {
+        await Promise.all([
+            this.loadSubTree('', 'pages'),
+            this.loadSubTree('', 'media'),
+        ]);
+
+        await this.openNamespace(JSINFO.namespace);
     }
 
     /**
@@ -106,7 +121,7 @@ class PluginMoveTree {
             data.push(entry);
 
             // if this is a namspace that is shared between media and pages, add a second entry
-            if(entry.class === 'ns' && entry.type === 'media'  && this.isItemPage(li)) {
+            if (entry.class === 'ns' && entry.type === 'media' && this.isItemPage(li)) {
                 entry = {...entry}; // clone
                 entry.type = 'page';
                 data.push(entry);
@@ -177,13 +192,13 @@ class PluginMoveTree {
             }
 
             // same ID? we consider this an abort
-            if(newID === src.dataset.id) {
+            if (newID === src.dataset.id) {
                 src.classList.remove('selected');
                 return;
             }
 
             // moving into self? ignore
-            if(dst.contains(src)) {
+            if (dst.contains(src)) {
                 return;
             }
 
@@ -207,6 +222,33 @@ class PluginMoveTree {
     dragEndHandler(ev) {
         if (this.#dragTarget) {
             this.#dragTarget.classList.remove('drop-zone');
+        }
+    }
+
+    /**
+     * Open the given namespace and all its parents
+     *
+     * @param {string} namespace
+     * @returns {Promise<void>}
+     */
+    async openNamespace(namespace) {
+        const namespaces = namespace.split(':');
+
+        for (let i = 0; i < namespaces.length; i++) {
+            const ns = namespaces.slice(0, i + 1).join(':');
+            const li = this.#mainElement.querySelectorAll(`li[data-orig="${ns}"].move-ns`);
+            if (!li.length) return;
+
+            // we might have multiple namespaces with the same ID (media and pages)
+            // we open both in parallel and wait for them
+            const promises = [];
+            for (const el of li) {
+                const ul = el.querySelector('ul');
+                if (!ul) {
+                    promises.push(this.toggleNamespace(el));
+                }
+            }
+            await Promise.all(promises);
         }
     }
 
@@ -253,8 +295,9 @@ class PluginMoveTree {
      * Open or close a namespace
      *
      * @param li
+     * @returns {Promise<void>}
      */
-    toggleNamespace(li) {
+    async toggleNamespace(li) {
         const isOpen = li.classList.toggle('open');
 
         // swap icon
@@ -277,12 +320,15 @@ class PluginMoveTree {
             ul.dataset.orig = li.dataset.orig;
             li.appendChild(ul);
 
+            const promises = [];
+
             if (li.classList.contains('move-pages')) {
-                this.loadSubTree(li.dataset.orig, 'pages');
+                promises.push(this.loadSubTree(li.dataset.orig, 'pages'));
             }
             if (li.classList.contains('move-media')) {
-                this.loadSubTree(li.dataset.orig, 'media');
+                promises.push(this.loadSubTree(li.dataset.orig, 'media'));
             }
+            await Promise.all(promises);
         } else {
             const ul = li.querySelector('ul');
             if (ul) {
@@ -378,7 +424,7 @@ class PluginMoveTree {
         const ns = parent.dataset.id; // parent is the namespace
 
         for (const li of parent.children) {
-            if(!this.isItemNamespace(li)) continue;
+            if (!this.isItemNamespace(li)) continue;
 
             const newID = this.getNewId(li.dataset.id, ns);
             li.dataset.id = newID;
