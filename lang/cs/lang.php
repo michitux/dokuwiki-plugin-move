@@ -64,7 +64,6 @@ $lang['js']['inprogress']      = 'Přesouvám stránky a upravuji odkazy...';
 $lang['js']['complete']        = 'Přesun byl dokončen.';
 $lang['js']['renameitem']      = 'Přejmenovat tuto položku';
 $lang['js']['add']             = 'Vytvořit nový jmenný prostor';
-$lang['js']['duplicate']       = 'Lituji, ale \'%s\' již existuje ve jmenném prosoru.';
 $lang['js']['moveButton']      = 'Přesunout soubor';
 $lang['js']['dialogIntro']     = 'Zadejte nový cíl souboru. Můžete změnit jmenný prostor, ale ne příponu souboru.';
 $lang['root']                  = '[Kořen]';

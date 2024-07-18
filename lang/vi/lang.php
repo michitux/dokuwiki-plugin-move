@@ -59,7 +59,6 @@ $lang['js']['inprogress']      = 'đang đổi tên trang và điều chỉnh li
 $lang['js']['complete']        = 'Đã hoàn thành hoạt động di chuyển.';
 $lang['js']['renameitem']      = 'Đổi tên mục này';
 $lang['js']['add']             = 'Tạo không gian tên mới';
-$lang['js']['duplicate']       = 'Xin lỗi, đã tồn tại "%s" trong không gian tên này.';
 $lang['root']                  = '[Không gian tên Gốc]';
 $lang['noscript']              = 'Tính năng này yêu cầu JavaScript';
 $lang['moveinprogress']        = 'Hiện tại đang diễn ra một hoạt động di chuyển khác, bạn không thể sử dụng công cụ này ngay bây giờ.';
