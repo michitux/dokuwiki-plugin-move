@@ -63,7 +63,6 @@ $lang['js']['inprogress']      = 'Renommage des pages et ajustement des pages en
 $lang['js']['complete']        = 'Déplacement effectué.';
 $lang['js']['renameitem']      = 'Renommer cet élément';
 $lang['js']['add']             = 'Créer une nouvelle catégorie';
-$lang['js']['duplicate']       = 'Désolé, "%s" existe dans cette catégorie.';
 $lang['js']['moveButton']      = 'Déplacer le fichier.';
 $lang['js']['dialogIntro']     = 'Entrez le nouvel emplacement du fichier. Vous pouvez changer la catégorie, mais pas l\'extension.';
 $lang['root']                  = '[Catégorie racine]';

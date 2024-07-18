@@ -61,7 +61,6 @@ $lang['js']['inprogress']      = 'Přesouvám stránky a upravuji odkazy...';
 $lang['js']['complete']        = 'Přesun byl dokončen.';
 $lang['js']['renameitem']      = 'Přejmenovat tuto položku';
 $lang['js']['add']             = 'Vytvořit nový jmenný prostor';
-$lang['js']['duplicate']       = 'Lituji, ale \'%s\' již existuje ve jmenném prosoru.';
 $lang['root']                  = '[Kořen]';
 $lang['noscript']              = 'Tato vlastost vyžaduje JavaScript';
 $lang['moveinprogress']        = 'Právě probíhá jiný přsun, proto nyní nemůžete použít tento nástroj.';

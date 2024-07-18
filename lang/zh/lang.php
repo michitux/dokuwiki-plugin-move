@@ -62,7 +62,6 @@ $lang['js']['inprogress']      = '重命名页面并修正有关链接：';
 $lang['js']['complete']        = '移动操作完毕。';
 $lang['js']['renameitem']      = '重命名该项';
 $lang['js']['add']             = '创建一个新的名称空间';
-$lang['js']['duplicate']       = '抱歉，"%s"在该目录已存在';
 $lang['root']                  = '[跟目录]';
 $lang['noscript']              = '该功能需要JavaScript';
 $lang['moveinprogress']        = '另一个移动操作正在进行，您现在无法使用该工具';

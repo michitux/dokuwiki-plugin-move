@@ -60,7 +60,6 @@ $lang['js']['inprogress']      = 'cambiar el nombre de la página y ajustar los 
 $lang['js']['complete']        = 'La operación de mover ha finalizado.';
 $lang['js']['renameitem']      = 'Renombrar este elemento';
 $lang['js']['add']             = 'Crear un nuevo espacio de nombres';
-$lang['js']['duplicate']       = 'Lo sentimos, "%s" ya existe en este espacio de nombres.';
 $lang['root']                  = '[Espacio de nombres raíz]';
 $lang['noscript']              = 'Esta función requiere JavaScript';
 $lang['moveinprogress']        = 'Hay otra operación de mover actualmente en curso, no se puede usar esta herramienta ahora mismo.';

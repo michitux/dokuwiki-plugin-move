@@ -46,6 +46,5 @@ $lang['js']['inprogress']      = 'ändra namn och justera länkar...';
 $lang['js']['complete']        = 'Flytt/Namnbyte avklarat.';
 $lang['js']['renameitem']      = 'Ändra namn på denna post';
 $lang['js']['add']             = 'Skapa en ny namnrymd';
-$lang['js']['duplicate']       = 'Tyvärr, "%s" existerar redan i denna namnrymd.';
 $lang['root']                  = '[Rotnamnrymd]';
 $lang['noscript']              = 'Denna funktion kräver JavaScript.';

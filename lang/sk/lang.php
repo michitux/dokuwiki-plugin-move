@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @author Viktor Kristian <vkristian@gmail.com>	
+ * @author Viktor Kristian <vkristian@gmail.com>
  */
 
 $lang['menu']                  = 'Presun/premenovanie stránky';
@@ -69,4 +69,4 @@ $lang['noscript']              = 'Táto vlastosť vyžaduje JavaScript';
 $lang['moveinprogress']        = 'Práve prebieha iná operácia presunu, tento nástroj momentálne nemôžete použiť.';
 $lang['js']['renameitem']      = 'Premenovať túto položku';
 $lang['js']['add']             = 'Vytvoriť nový menný priestor';
-$lang['js']['duplicate']       = 'Ľutujeme, \'%s\' už v tomto mennom priestore existuje.';
+
