@@ -217,9 +217,21 @@ class PluginMoveTree {
                 return;
             }
 
-            // check if item with same ID already exists FIXME this also needs to check the type!
-            if (this.itemTree(src).querySelector(`li[data-id="${newID}"]`)) {
+            // check if item with same ID and type already exists
+            let dupSelector = `li[data-id="${newID}"]`;
+            if (this.isItemMedia(src)) {
+                dupSelector += '.move-media';
+            } else {
+                dupSelector += '.move-pages';
+            }
+            if (this.isItemNamespace(src)) {
+                dupSelector += '.move-ns';
+            } else {
+                dupSelector += ':not(.move-ns)';
+            }
+            if (this.itemTree(src).querySelector(dupSelector)) {
                 alert(LANG.plugins.move.duplicate.replace('%s', newID));
+                src.classList.remove('selected');
                 return;
             }
 
