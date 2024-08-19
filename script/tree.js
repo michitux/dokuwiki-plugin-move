@@ -83,6 +83,9 @@ class PluginMoveTree {
         const clicked = target.closest('i,button,span');
         if (!clicked) return;
 
+        // ignore clicks on the root element
+        if(li.classList.contains('tree-root')) return;
+
         // icon click selects the item
         if (clicked.tagName.toLowerCase() === 'i') {
             ev.stopPropagation();
@@ -161,14 +164,28 @@ class PluginMoveTree {
      * @param {DragEvent} ev
      */
     dragOverHandler(ev) {
-        if (!ev.target) return;  // the element the mouse is over
-        const ul = ev.target.closest('ul');
-        if (!ul) return;
-        ev.preventDefault(); // allow drop
-
-        if (this.#dragTarget && this.#dragTarget !== ul) {
+        // remove any previous drop zone
+        if (this.#dragTarget) {
             this.#dragTarget.classList.remove('drop-zone');
         }
+
+        if (!ev.target) return;  // the element the mouse is over
+
+        const li = ev.target.closest('li');
+        if (!li)  return;
+
+        let ul; // the UL we drop into
+        if (li.classList.contains('move-ns')) {
+            // drop on a namespace, use its UL
+            ul = li.querySelector('ul');
+        } else {
+            // drop on a file or page, use parent UL
+            ul = ev.target.closest('ul');
+        }
+        if (!ul) return;
+        if(ul.classList.contains('open') === false) return; // only drop into open namespaces
+        ev.preventDefault(); // allow drop
+
         this.#dragTarget = ul;
         this.#dragTarget.classList.add('drop-zone');
     }
@@ -180,8 +197,8 @@ class PluginMoveTree {
      */
     dragDropHandler(ev) {
         if (!ev.target) return;
-        const dst = ev.target.closest('ul');
-        if (!dst) return;
+
+        const dst = this.#dragTarget; // the UL we drop into
 
         // move all selected items to the drop target
         const elements = this.#mainElement.querySelectorAll('.selected');
