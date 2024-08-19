@@ -81,6 +81,7 @@ class PluginMoveTree {
 
         // we want to handle clicks on these elements only
         const clicked = target.closest('i,button,span');
+        if (!clicked) return;
 
         // icon click selects the item
         if (clicked.tagName.toLowerCase() === 'i') {
@@ -186,6 +187,8 @@ class PluginMoveTree {
         const elements = this.#mainElement.querySelectorAll('.selected');
         elements.forEach(src => {
             const newID = this.getNewId(src.dataset.id, dst.dataset.id);
+            console.log('move started', src.dataset.id + ' → ' + newID);
+
             // ensure that item stays in its own tree, ignore cross-tree moves
             if (this.itemTree(src).contains(dst) === false) {
                 return;
@@ -197,17 +200,19 @@ class PluginMoveTree {
                 return;
             }
 
-            // moving into self? ignore
-            if (dst.contains(src)) {
-                return;
-            }
-
-            // check if item with same ID already exists
+            // check if item with same ID already exists FIXME this also needs to check the type!
             if (this.itemTree(src).querySelector(`li[data-id="${newID}"]`)) {
                 alert(LANG.plugins.move.duplicate.replace('%s', newID));
                 return;
             }
-            dst.append(src);
+
+            try {
+                dst.append(src);
+            } catch (e) {
+                console.log('move aborted', e.message); // moved into itself
+                src.classList.remove('selected');
+                return;
+            }
             this.updateMovedItem(src, newID);
         });
         this.updatePassiveSubNamespaces(dst);
