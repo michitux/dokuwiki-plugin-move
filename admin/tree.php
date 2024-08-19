@@ -66,10 +66,10 @@ class admin_plugin_move_tree extends DokuWiki_Admin_Plugin
             echo '<div id="plugin_move__tree">';
             echo '<div class="trees">';
             if ($dual) {
-                echo '<ul class="tree_root move-pages move-ns" data-id="" data-orig=""></ul>';
-                echo '<ul class="tree_root move-media move-ns" data-id="" data-orig=""></ul>';
+                $this->printTreeRoot('move-pages');
+                $this->printTreeRoot('move-media');
             } else {
-                echo '<ul class="tree_root move-pages move-media move-ns" data-id="" data-orig=""></ul>';
+                $this->printTreeRoot('move-pages move-media');
             }
             echo '</div>';
 
@@ -87,6 +87,26 @@ class admin_plugin_move_tree extends DokuWiki_Admin_Plugin
             echo $form->toHTML();
             echo '</div>';
         }
+    }
+
+    /**
+     * Print the root of the tree
+     *
+     * @param string $classes The classes to apply to the root
+     * @return void
+     */
+    protected function printTreeRoot($classes) {
+        echo '<ul>';
+        echo '<li class="'.$classes.' move-ns open tree-root" data-id="" data-orig="" >';
+        echo '<div class="li">';
+        echo '<i class="icon">';
+        echo inlineSVG(DOKU_PLUGIN . 'move/images/folder-home.svg');
+        echo '</i>';
+        echo '<span>:</span>';
+        echo '</div>';
+        echo '<ul class="'.$classes.' move-ns open" data-id="" data-orig=""></ul>';
+        echo '</li>';
+        echo '</ul>';
     }
 
     /**
