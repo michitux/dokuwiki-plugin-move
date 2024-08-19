@@ -59,7 +59,6 @@ $lang['js']['inprogress']      = 'omdøber side og tilretter links...';
 $lang['js']['complete']        = 'Flytningsoperation færdig.';
 $lang['js']['renameitem']      = 'Omdøb denne';
 $lang['js']['add']             = 'Opret et nyt navnerum';
-$lang['js']['duplicate']       = 'Beklager, "%s" findes allerede i dette navnerum.';
 $lang['root']                  = '[Rod navnerum]';
 $lang['noscript']              = 'Denne handling kræver JavaScript';
 $lang['moveinprogress']        = 'Der er i øjeblikket en anden flytningsoperation i gang, du kan ikke anvende dette værktøj på dette tidspunkt.';

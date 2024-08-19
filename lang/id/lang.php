@@ -56,7 +56,6 @@ $lang['js']['inprogress']      = 'mengubah nama halaman dan menyesuaikan pranala
 $lang['js']['complete']        = 'Pemindahan selesai.';
 $lang['js']['renameitem']      = 'Ubah nama item ini';
 $lang['js']['add']             = 'Buat ruangnama baru';
-$lang['js']['duplicate']       = 'Maaf, %s telah ada di ruangnama ini.';
 $lang['root']                  = '[Ruang nama root]';
 $lang['noscript']              = 'Fitur ini membutuhkan JavaScript';
 $lang['moveinprogress']        = 'Ada operasi pemindahan lain yang belum selesai, Anda tidak dapat menggunakan alat ini sekarang.';
