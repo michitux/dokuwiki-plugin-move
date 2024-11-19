@@ -1,4 +1,8 @@
 <?php
+
+use dokuwiki\Extension\Plugin;
+use dokuwiki\Extension\Event;
+
 /**
  * Move Plugin Operation Execution
  *
@@ -7,11 +11,12 @@
  * @author     Gary Owen <gary@isection.co.uk>
  * @author     Andreas Gohr <gohr@cosmocode.de>
  */
+
 // must be run within Dokuwiki
-if(!defined('DOKU_INC')) die();
+if (!defined('DOKU_INC')) die();
 
-class helper_plugin_move_op extends DokuWiki_Plugin {
-
+class helper_plugin_move_op extends Plugin
+{
     /**
      * @var string symbol to make move operations easily recognizable in change log
      */
@@ -20,7 +25,7 @@ class helper_plugin_move_op extends DokuWiki_Plugin {
     /**
      * @var array stores the affected pages of the last operation
      */
-    protected $affectedPages = array();
+    protected $affectedPages = [];
 
     /**
      * Check if the given page can be moved to the given destination
@@ -29,13 +34,14 @@ class helper_plugin_move_op extends DokuWiki_Plugin {
      * @param $dst
      * @return bool
      */
-    public function checkPage($src, $dst) {
+    public function checkPage($src, $dst)
+    {
         // Check we have rights to move this document
-        if(!page_exists($src)) {
+        if (!page_exists($src)) {
             msg(sprintf($this->getLang('notexist'), $src), -1);
             return false;
         }
-        if(auth_quickaclcheck($src) < AUTH_EDIT) {
+        if (auth_quickaclcheck($src) < AUTH_EDIT) {
             msg(sprintf($this->getLang('norights'), $src), -1);
             return false;
         }
@@ -44,25 +50,25 @@ class helper_plugin_move_op extends DokuWiki_Plugin {
         // checklock checks if the page lock hasn't expired and the page hasn't been locked by another user
         // the file exists check checks if the page is reported unlocked if a lock exists which means that
         // the page is locked by the current user
-        if(checklock($src) !== false || @file_exists(wikiLockFN($src))) {
+        if (checklock($src) !== false || @file_exists(wikiLockFN($src))) {
             msg(sprintf($this->getLang('filelocked'), $src), -1);
             return false;
         }
 
         // Has the document name and/or namespace changed?
-        if($src == $dst) {
+        if ($src == $dst) {
             msg(sprintf($this->getLang('notchanged'), $src), -1);
             return false;
         }
 
         // Check the page does not already exist
-        if(page_exists($dst)) {
+        if (page_exists($dst)) {
             msg(sprintf($this->getLang('exists'), $src, $dst), -1);
             return false;
         }
 
         // Check if the current user can create the new page
-        if(auth_quickaclcheck($dst) < AUTH_CREATE) {
+        if (auth_quickaclcheck($dst) < AUTH_CREATE) {
             msg(sprintf($this->getLang('notargetperms'), $dst), -1);
             return false;
         }
@@ -77,31 +83,32 @@ class helper_plugin_move_op extends DokuWiki_Plugin {
      * @param $dst
      * @return bool
      */
-    public function checkMedia($src, $dst) {
+    public function checkMedia($src, $dst)
+    {
         // Check we have rights to move this document
-        if(!file_exists(mediaFN($src))) {
+        if (!file_exists(mediaFN($src))) {
             msg(sprintf($this->getLang('medianotexist'), $src), -1);
             return false;
         }
-        if(auth_quickaclcheck($src) < AUTH_DELETE) {
+        if (auth_quickaclcheck($src) < AUTH_DELETE) {
             msg(sprintf($this->getLang('nomediarights'), $src), -1);
             return false;
         }
 
         // Has the document name and/or namespace changed?
-        if($src == $dst) {
+        if ($src == $dst) {
             msg(sprintf($this->getLang('medianotchanged'), $src), -1);
             return false;
         }
 
         // Check the page does not already exist
-        if(@file_exists(mediaFN($dst))) {
+        if (@file_exists(mediaFN($dst))) {
             msg(sprintf($this->getLang('mediaexists'), $src, $dst), -1);
             return false;
         }
 
         // Check if the current user can create the new page
-        if(auth_quickaclcheck($dst) < AUTH_UPLOAD) {
+        if (auth_quickaclcheck($dst) < AUTH_UPLOAD) {
             msg(sprintf($this->getLang('nomediatargetperms'), $dst), -1);
             return false;
         }
@@ -122,8 +129,9 @@ class helper_plugin_move_op extends DokuWiki_Plugin {
      * @param string $dst new ID
      * @return bool
      */
-    public function movePage($src, $dst) {
-        if(!$this->checkPage($src, $dst)) return false;
+    public function movePage($src, $dst)
+    {
+        if (!$this->checkPage($src, $dst)) return false;
 
         // lock rewrites
         helper_plugin_move_rewrite::addLock();
@@ -145,24 +153,19 @@ class helper_plugin_move_op extends DokuWiki_Plugin {
         $dst_name = noNS($dst);
 
         // pass this info on to other plugins
-        $eventdata = array(
+        $eventdata = [
             // this is for compatibility to old plugin
-            'opts'           => array(
-                'ns'      => $src_ns,
-                'name'    => $src_name,
-                'newns'   => $dst_ns,
-                'newname' => $dst_name,
-            ),
+            'opts'           => ['ns'      => $src_ns, 'name'    => $src_name, 'newns'   => $dst_ns, 'newname' => $dst_name],
             'affected_pages' => &$affected_pages,
             'src_id'         => $src,
             'dst_id'         => $dst,
-        );
+        ];
 
         // give plugins the option to add their own meta files to the list of files that need to be moved
         // to the oldfiles/newfiles array or to adjust their own metadata, database, ...
         // and to add other pages to the affected pages
-        $event = new Doku_Event('PLUGIN_MOVE_PAGE_RENAME', $eventdata);
-        if($event->advise_before()) {
+        $event = new Event('PLUGIN_MOVE_PAGE_RENAME', $eventdata);
+        if ($event->advise_before()) {
             lock($src);
 
             /** @var helper_plugin_move_file $FileMover */
@@ -170,21 +173,22 @@ class helper_plugin_move_op extends DokuWiki_Plugin {
 
             // Move the Subscriptions & Indexes (new feature since Spring 2013 release)
             $Indexer = idx_get_indexer();
-            if(($idx_msg = $Indexer->renamePage($src, $dst)) !== true
+            if (
+                ($idx_msg = $Indexer->renamePage($src, $dst)) !== true
                 || ($idx_msg = $Indexer->renameMetaValue('relation_references', $src, $dst)) !== true
             ) {
                 msg(sprintf($this->getLang('indexerror'), $idx_msg), -1);
                 return false;
             }
-            if(!$FileMover->movePageMeta($src_ns, $src_name, $dst_ns, $dst_name)) {
+            if (!$FileMover->movePageMeta($src_ns, $src_name, $dst_ns, $dst_name)) {
                 msg(sprintf($this->getLang('metamoveerror'), $src), -1);
                 return false;
             }
 
             // prepare the summary for the changelog entry
-            if($src_ns == $dst_ns) {
+            if ($src_ns == $dst_ns) {
                 $lang_key = 'renamed';
-            } elseif($src_name == $dst_name) {
+            } elseif ($src_name == $dst_name) {
                 $lang_key = 'moved';
             } else {
                 $lang_key = 'move_rename';
@@ -193,25 +197,25 @@ class helper_plugin_move_op extends DokuWiki_Plugin {
 
             // Wait a second when the page has just been rewritten
             $oldRev = filemtime(wikiFN($src));
-            if($oldRev == time()) sleep(1);
+            if ($oldRev == time()) sleep(1);
 
             // Save the updated document in its new location
             $text = rawWiki($src);
             saveWikiText($dst, $text, $summary);
 
             // Delete the orginal file
-            if(@file_exists(wikiFN($dst))) {
+            if (@file_exists(wikiFN($dst))) {
                 saveWikiText($src, '', $summary);
             }
 
             // Move the old revisions
-            if(!$FileMover->movePageAttic($src_ns, $src_name, $dst_ns, $dst_name)) {
+            if (!$FileMover->movePageAttic($src_ns, $src_name, $dst_ns, $dst_name)) {
                 // it's too late to stop the move, so just display a message.
-                msg(sprintf($this->getLang('atticmoveerror'), $src ), -1);
+                msg(sprintf($this->getLang('atticmoveerror'), $src), -1);
             }
 
             // Add meta data to all affected pages, so links get updated later
-            foreach($affected_pages as $id) {
+            foreach ($affected_pages as $id) {
                 $Rewriter->setMoveMeta($id, $src, $dst, 'pages');
             }
 
@@ -235,8 +239,9 @@ class helper_plugin_move_op extends DokuWiki_Plugin {
      * @param string $dst new ID
      * @return bool true if the move was successfully executed
      */
-    public function moveMedia($src, $dst) {
-        if(!$this->checkMedia($src, $dst)) return false;
+    public function moveMedia($src, $dst)
+    {
+        if (!$this->checkMedia($src, $dst)) return false;
 
         // get all pages using this media
         $affected_pages = idx_get_indexer()->lookupKey('relation_media', $src);
@@ -247,24 +252,19 @@ class helper_plugin_move_op extends DokuWiki_Plugin {
         $dst_name = noNS($dst);
 
         // pass this info on to other plugins
-        $eventdata = array(
+        $eventdata = [
             // this is for compatibility to old plugin
-            'opts'           => array(
-                'ns'      => $src_ns,
-                'name'    => $src_name,
-                'newns'   => $dst_ns,
-                'newname' => $dst_name,
-            ),
+            'opts'           => ['ns'      => $src_ns, 'name'    => $src_name, 'newns'   => $dst_ns, 'newname' => $dst_name],
             'affected_pages' => &$affected_pages,
             'src_id'         => $src,
             'dst_id'         => $dst,
-        );
+        ];
 
         // give plugins the option to add their own meta files to the list of files that need to be moved
         // to the oldfiles/newfiles array or to adjust their own metadata, database, ...
         // and to add other pages to the affected pages
-        $event = new Doku_Event('PLUGIN_MOVE_MEDIA_RENAME', $eventdata);
-        if($event->advise_before()) {
+        $event = new Event('PLUGIN_MOVE_MEDIA_RENAME', $eventdata);
+        if ($event->advise_before()) {
             /** @var helper_plugin_move_file $FileMover */
             $FileMover = plugin_load('helper', 'move_file');
             /** @var helper_plugin_move_rewrite $Rewriter */
@@ -272,11 +272,11 @@ class helper_plugin_move_op extends DokuWiki_Plugin {
 
             // Move the Subscriptions & Indexes (new feature since Spring 2013 release)
             $Indexer = idx_get_indexer();
-            if(($idx_msg = $Indexer->renameMetaValue('relation_media', $src, $dst)) !== true) {
+            if (($idx_msg = $Indexer->renameMetaValue('relation_media', $src, $dst)) !== true) {
                 msg(sprintf($this->getLang('indexerror'), $idx_msg), -1);
                 return false;
             }
-            if(!$FileMover->moveMediaMeta($src_ns, $src_name, $dst_ns, $dst_name)) {
+            if (!$FileMover->moveMediaMeta($src_ns, $src_name, $dst_ns, $dst_name)) {
                 msg(sprintf($this->getLang('mediametamoveerror'), $src), -1);
                 return false;
             }
@@ -285,7 +285,7 @@ class helper_plugin_move_op extends DokuWiki_Plugin {
             io_createNamespace($dst, 'media');
 
             // move it FIXME this does not create a changelog entry!
-            if(!io_rename(mediaFN($src), mediaFN($dst))) {
+            if (!io_rename(mediaFN($src), mediaFN($dst))) {
                 msg(sprintf($this->getLang('mediamoveerror'), $src), -1);
                 return false;
             }
@@ -294,13 +294,13 @@ class helper_plugin_move_op extends DokuWiki_Plugin {
             io_sweepNS($src, 'mediadir');
 
             // Move the old revisions
-            if(!$FileMover->moveMediaAttic($src_ns, $src_name, $dst_ns, $dst_name)) {
+            if (!$FileMover->moveMediaAttic($src_ns, $src_name, $dst_ns, $dst_name)) {
                 // it's too late to stop the move, so just display a message.
                 msg(sprintf($this->getLang('mediaatticmoveerror'), $src), -1);
             }
 
             // Add meta data to all affected pages, so links get updated later
-            foreach($affected_pages as $id) {
+            foreach ($affected_pages as $id) {
                 $Rewriter->setMoveMeta($id, $src, $dst, 'media');
             }
         }
@@ -317,7 +317,8 @@ class helper_plugin_move_op extends DokuWiki_Plugin {
      *
      * @return array
      */
-    public function getAffectedPages() {
+    public function getAffectedPages()
+    {
         return $this->affectedPages;
     }
 }
