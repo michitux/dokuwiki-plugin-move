@@ -1,7 +1,7 @@
-====== Move Manager =====
+====== Manager de mutare =====
 
-This interface allows you to rearrange your wiki's namespaces, pages and media files via Drag'n'Drop.
+Această interfață îți permite să rearanjezi numele de spațiu, paginile și fișierele cu Drag'n'Drop.
 
-In order to move many namespaces, pages or media files to the same destination, you can use the checkboxes as follows:
-  * check the namespaces, pages or media files you want to move;
-  * move one of the checked items to the desired destination, all selected items will be moved to this destination.
+Pentru a muta mai multe nume de spațiu, pagini sau fișiere la aceeași destinație, poți activa opțiunile următoare:
+  * selectează numele de spațiu, paginile sau fișierele media pe care vrei să le muți;
+  * mută unul din elementele selectate la destinația dorită, toate elementele selectate vor fi mutate la destinație.

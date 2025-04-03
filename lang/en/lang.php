@@ -1,88 +1,72 @@
 <?php
+
 /**
  * english language file
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
- * @author     Gary Owen <>
+ *
+ * @author Tiberiu Popescu <popescu.tibi@gmail.com>
+ * @author Gary Owen
  */
-
-$lang['menu']       = 'Move pages and namespaces';
-$lang['inprogress'] = '(move pending)';
-$lang['treelink']   = 'Alternatively to this simple form you can manage complex restructuring of your wiki using the <a href="%s">tree-based move manager</a>.';
-
-// page errors
-$lang['notexist']      = 'The page %s does not exist';
-$lang['norights']      = 'You have insufficient permissions to edit %s.';
-$lang['filelocked']    = 'The page %s is locked. Try again later.';
-$lang['notchanged']    = 'No new destination given for page %s (location unchanged).';
-$lang['exists']        = 'Page %s can\'t be moved to %s, the target already exists.';
-$lang['notargetperms'] = 'You don\'t have the permission to create the page %s.';
-
-// media errors
-$lang['medianotexist']      = 'The media file %s does not exist';
-$lang['nomediarights']      = 'You have insufficient permissions to delete %s.';
-$lang['medianotchanged']    = 'No new destination given for page %s (location unchanged).';
-$lang['mediaexists']        = 'Media %s can\'t be moved to %s, the target already exists.';
-$lang['nomediatargetperms'] = 'You don\'t have the permission to create the media file %s.';
-$lang['extensionchange']    = 'Extension of the new file is not the same as the original.';
-
-// system errors
-$lang['indexerror']          = 'Error while updating the search index %s';
-$lang['metamoveerror']       = 'The meta files of page %s couldn\'t be moved';
-$lang['atticmoveerror']      = 'The attic files of page %s couldn\'t be moved. Please move them manually.';
-$lang['mediametamoveerror']  = 'The meta files of the media file %s couldn\'t be moved';
-$lang['mediamoveerror']      = 'Moving the media file %s failed';
-$lang['mediaatticmoveerror'] = 'The attic files of media file %s couldn\'t be moved. Please move them manually.';
-
-// changelog summaries
-$lang['renamed']     = 'Page name changed from %s to %s';
-$lang['moved']       = 'Page moved from %s to %s';
-$lang['move_rename'] = 'Page moved and renamed from %s to %s';
-$lang['delete']      = 'Deleted by move plugin';
-$lang['linkchange']  = 'Links adapted because of a move operation';
-
-// progress view
-$lang['intro']        = 'The move operation has not been started, yet!';
-$lang['preview']      = 'Preview changes to be executed.';
-$lang['inexecution']  = 'A previous move was not completed - use the buttons below to continue or abort the execution.';
-$lang['btn_start']    = 'Start';
-$lang['btn_continue'] = 'Continue';
-$lang['btn_retry']    = 'Retry item';
-$lang['btn_skip']     = 'Skip item';
-$lang['btn_abort']    = 'Abort';
-
-// Form labels
-$lang['legend']               = 'Move current page or namespace';
-$lang['movepage']             = 'Move page';
-$lang['movens']               = 'Move namespace';
-$lang['dst']                  = 'New name:';
-$lang['content_to_move']      = 'Content to move:';
-$lang['autoskip']             = 'Ignore errors and skip pages or files that can\'t be moved';
-$lang['autorewrite']          = 'Rewrite links right after the move completed';
-$lang['move_pages']           = 'Pages';
-$lang['move_media']           = 'Media files';
-$lang['move_media_and_pages'] = 'Pages and media files';
-$lang['nodst']                = 'No new name given';
-$lang['noaction']             = 'There were no moves defined';
-
-// Rename feature
-$lang['renamepage']       = 'Rename Page';
-$lang['cantrename']       = 'The page can\'t be renamed right now. Please try later.';
-$lang['notallowed']       = 'You are not allowed to rename pages or media.';
-$lang['js']['rename']     = 'Rename';
-$lang['js']['cancel']     = 'Cancel';
-$lang['js']['newname']    = 'New name:';
-$lang['js']['inprogress'] = 'renaming page and adjusting links...';
-$lang['js']['complete']   = 'Move operation finished.';
-
-// Tree Manager
-$lang['root']             = '[Root namespace]';
-$lang['noscript']         = 'This feature requires JavaScript';
-$lang['moveinprogress']   = 'There is another move operation in progress currently, you can\'t use this tool right now.';
-$lang['js']['renameitem'] = 'Rename this item';
-$lang['js']['add']        = 'Create a new namespace';
-$lang['js']['duplicate']  = 'Sorry, "%s" already exists in this namespace.';
-
-// Media Manager
-$lang['js']['moveButton'] = 'Move file';
-$lang['js']['dialogIntro'] = 'Enter new file destination. You may change the namespace but not the file extension.';
+$lang['menu']                  = 'Mută pagini și nume de spațiu';
+$lang['inprogress']            = '(mutare în așteptare)';
+$lang['treelink']              = 'Alternativ la această metodă poți realiza o structurare complexă a wiki-ului folosind <a href="%s">managerul de mutare bazat pe structură</a>.';
+$lang['notexist']              = 'Pagina %s nu există';
+$lang['norights']              = 'Nu ai permisiune de editare pentru %s.';
+$lang['filelocked']            = 'Pagina %s este blocată. Încearcă mai târziu.';
+$lang['notchanged']            = 'Nu ai specificat o destinație nouă pentru pagina %s (localizare neschimbată).';
+$lang['exists']                = 'Pagina %s nu poate fi mutată la %s, destinația există deja.';
+$lang['notargetperms']         = 'Nu ai permisiune pentru a crea pagina %s.';
+$lang['medianotexist']         = 'Fișierul media %s nu există.';
+$lang['nomediarights']         = 'Nu ai permisiune pentru a șterge %s.';
+$lang['medianotchanged']       = 'Nu ai specificat o destinație nouă pentru pagina %s (localizare neschimbată).';
+$lang['mediaexists']           = 'Fișierul %s nu poate fi mutat la %s, destinația există deja.';
+$lang['nomediatargetperms']    = 'Nu ai permisiune pentru a crea fișierul %s.';
+$lang['extensionchange']       = 'Extensia noului fișier e diferită de cea a fișierului original.';
+$lang['indexerror']            = 'Eroare la actualizarea indexului de căutare %s';
+$lang['metamoveerror']         = 'Fișierele meta ale paginii %s nu au putut fi mutate';
+$lang['atticmoveerror']        = 'Fișierele de istoric ale paginii %s nu au putut fi mutate. Te rog să le muți manual.';
+$lang['mediametamoveerror']    = 'Fișierele meta ale fișierului %s nu au putut fi mutate';
+$lang['mediamoveerror']        = 'Mutarea fișierului %s a eșuat';
+$lang['mediaatticmoveerror']   = 'Fișierele de istoric ale fișierului %s nu au putut fi mutate. Te rog să le muți manual.';
+$lang['renamed']               = 'Numele paginii a fost schimbat din %s în %s';
+$lang['moved']                 = 'Pagina a fost mutată de la %s la %s';
+$lang['move_rename']           = 'Pagina a fost mutată și redenumită de la %s la %s';
+$lang['delete']                = 'Șters de plugin-ul move';
+$lang['linkchange']            = 'Link-uri actualizate datorită unei operații de mutare';
+$lang['intro']                 = 'Operația de mutare nu a început încă!';
+$lang['preview']               = 'Previzualizează schimbările care vor fi executate.';
+$lang['inexecution']           = 'O mutare anterioară nu a fost completată - folosește butoanele de mai jos pentru a continua sau anula execuția.';
+$lang['btn_start']             = 'Start';
+$lang['btn_continue']          = 'Continuă';
+$lang['btn_retry']             = 'Reîncearcă element';
+$lang['btn_skip']              = 'Sari peste element';
+$lang['btn_abort']             = 'Anulează';
+$lang['legend']                = 'Mută pagina curentă sau numele de spațiu';
+$lang['movepage']              = 'Mută pagina';
+$lang['movens']                = 'Mută numele de spațiu';
+$lang['dst']                   = 'Nume nou:';
+$lang['content_to_move']       = 'Conținut de mutat:';
+$lang['autoskip']              = 'Ignoră erorile și sari peste paginile sau fișierele care nu pot fi mutate';
+$lang['autorewrite']           = 'Rescrie link-urile imediat după mutare';
+$lang['move_pages']            = 'Pagini';
+$lang['move_media']            = 'Fișiere media';
+$lang['move_media_and_pages']  = 'Pagini și fișiere media';
+$lang['nodst']                 = 'Niciun nume nou';
+$lang['noaction']              = 'Nu au fost definite mutări';
+$lang['renamepage']            = 'Redenumește pagina';
+$lang['cantrename']            = 'Pagina nu poate fi redenumită chiar acum. Încearcă mai târziu.';
+$lang['notallowed']            = 'Nu ai voie să redenumești pagini sau fișiere.';
+$lang['js']['rename']          = 'Redenumește';
+$lang['js']['cancel']          = 'Anulează';
+$lang['js']['newname']         = 'Nume nou:';
+$lang['js']['inprogress']      = 'redenumire paginii și actualizare link-uri...';
+$lang['js']['complete']        = 'Operația de mutare s-a terminat.';
+$lang['js']['renameitem']      = 'Redenumește acest element';
+$lang['js']['add']             = 'Creează un nume de spațiu nou';
+$lang['js']['duplicate']       = 'Îmi pare rău, %s există deja în numele de spațiu.';
+$lang['js']['moveButton']      = 'Mută fișier';
+$lang['js']['dialogIntro']     = 'Introdu noua destinație a fișierului. Poți schimba numele de spațiu, dar nu și extensia fișierului.';
+$lang['root']                  = '[Nume de spațiu rădăcină]';
+$lang['noscript']              = 'Această funcție necesită JavaScript';
+$lang['moveinprogress']        = 'O altă operație de mutare este în curs, nu poți folosi această funcție chiar acum.';

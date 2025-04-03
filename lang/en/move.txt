@@ -1,10 +1,10 @@
 ====== Move ======
 
-This plugin allows you to move and/or rename the current page or move and/or rename the current namespace within the following restrictions:
+Acest plugin îți permite să muți și/sau să redenumești pagina curentă sau să muți și/sau să redenumești numele de spațiu curent cu următoarele restricții:
 
-  * You must have edit permission for the current page/all pages in the current namespace.
-  * The pages that are moved must not be locked for editing.
-  * For moving a page you also need create permission in the target namespace.
-  * You cannot move a page to a namespace where a page with the same name already exists.
+  * Trebuie să ai permisiunea de editare pentru pagina curentă/toate paginile din numele de spațiu curent.
+  * Paginile care sunt mutate nu trebuie să fie blocate de editare.
+  * Pentru mutarea unei pagini ai nevoie de permisiunea de creare în numele de spațiu destinație.
+  * Nu poți muta o pagină într-un nume de spațiu unde există deja o pagină cu același nume.
 
-All links to and from the pages that are moved will be updated to reflect the new location and/or name.
+Toate legăturile din și către paginile care sunt mutate vor fi actualizate pentru a reflecta noua locație sau nume.
