@@ -1,0 +1,24 @@
+# Create release on change to plugin.info.txt version line
+# https://github.com/dokuwiki/dokuwiki/issues/3951
+#
+# Requires DOKUWIKI_USER and DOKUWIKI_PASS secrets be set in GitHub Actions
+
+name: Release
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "*.info.txt"
+
+jobs:
+  release:
+    name: Release
+    # https://github.com/dokuwiki/dokuwiki/pull/3966
+    uses: glensc/dokuwiki/.github/workflows/plugin-release.yml@39431875f734bddc35cc6b4a899bbfdec97e8aba
+    secrets:
+      DOKUWIKI_USER: ${{ secrets.DOKUWIKI_USER }}
+      DOKUWIKI_PASS: ${{ secrets.DOKUWIKI_PASS }}
+
+# vim:ts=2:sw=2:et

@@ -24,6 +24,7 @@ $lang['nomediarights']      = 'You have insufficient permissions to delete %s.';
 $lang['medianotchanged']    = 'No new destination given for page %s (location unchanged).';
 $lang['mediaexists']        = 'Media %s can\'t be moved to %s, the target already exists.';
 $lang['nomediatargetperms'] = 'You don\'t have the permission to create the media file %s.';
+$lang['extensionchange']    = 'Extension of the new file is not the same as the original.';
 
 // system errors
 $lang['indexerror']          = 'Error while updating the search index %s';
@@ -67,6 +68,7 @@ $lang['noaction']             = 'There were no moves defined';
 // Rename feature
 $lang['renamepage']       = 'Rename Page';
 $lang['cantrename']       = 'The page can\'t be renamed right now. Please try later.';
+$lang['notallowed']       = 'You are not allowed to rename pages or media.';
 $lang['js']['rename']     = 'Rename';
 $lang['js']['cancel']     = 'Cancel';
 $lang['js']['newname']    = 'New name:';
@@ -80,3 +82,7 @@ $lang['moveinprogress']   = 'There is another move operation in progress current
 $lang['js']['renameitem'] = 'Rename this item';
 $lang['js']['add']        = 'Create a new namespace';
 $lang['js']['duplicate']  = 'Sorry, "%s" already exists in this namespace.';
+
+// Media Manager
+$lang['js']['moveButton'] = 'Move file';
+$lang['js']['dialogIntro'] = 'Enter new file destination. You may change the namespace but not the file extension.';

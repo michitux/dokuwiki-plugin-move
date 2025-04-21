@@ -106,6 +106,12 @@ class helper_plugin_move_op extends DokuWiki_Plugin {
             return false;
         }
 
+        // check if the file extension is unchanged
+        if (pathinfo(mediaFN($src), PATHINFO_EXTENSION) !== pathinfo(mediaFN($dst), PATHINFO_EXTENSION)) {
+            msg($this->getLang('extensionchange'), -1);
+            return false;
+        }
+
         return true;
     }
 

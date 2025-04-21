@@ -26,6 +26,7 @@ class action_plugin_move_rename extends DokuWiki_Action_Plugin {
 
         $controller->register_hook('MENU_ITEMS_ASSEMBLY', 'AFTER', $this, 'addsvgbutton', array());
         $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'handle_ajax');
+        $controller->register_hook('AJAX_CALL_UNKNOWN', 'BEFORE', $this, 'handleAjaxMediaManager');
     }
 
     /**
@@ -34,7 +35,20 @@ class action_plugin_move_rename extends DokuWiki_Action_Plugin {
     public function handle_init() {
         global $JSINFO;
         global $INFO;
-        $JSINFO['move_renameokay'] = $this->renameOkay($INFO['id']);
+        global $INPUT;
+        global $USERINFO;
+
+        if (isset($INFO['id'])) {
+            $JSINFO['move_renameokay'] = $this->renameOkay($INFO['id']);
+        } else {
+            $JSINFO['move_renameokay'] = false;
+        }
+
+        $JSINFO['move_allowrename'] = auth_isMember(
+            $this->getConf('allowrename'),
+            $INPUT->server->str('REMOTE_USER'),
+            $USERINFO['grps'] ?? []
+        );
     }
 
     /**
@@ -68,7 +82,7 @@ class action_plugin_move_rename extends DokuWiki_Action_Plugin {
         if(
             $event->data['view'] !== 'page' ||
             !$this->getConf('pagetools_integration') ||
-            !$JSINFO['move_renameokay']
+            empty($JSINFO['move_renameokay'])
         ) {
             return;
         }
@@ -109,6 +123,65 @@ class action_plugin_move_rename extends DokuWiki_Action_Plugin {
                 $error = $this->getLang('cantrename');
             }
             echo $JSON->encode(array('error' => $error));
+        }
+    }
+
+    /**
+     * Handle media renames in media manager
+     *
+     * @param Doku_Event $event
+     * @return void
+     */
+    public function handleAjaxMediaManager(Doku_Event $event)
+    {
+        if ($event->data !== 'plugin_move_rename_mediamanager') return;
+
+        if (!checkSecurityToken()) {
+            throw new \Exception('Security token did not match');
+        }
+
+        $event->preventDefault();
+        $event->stopPropagation();
+
+        global $INPUT;
+        global $MSG;
+        global $USERINFO;
+
+        $src = cleanID($INPUT->str('src'));
+        $dst = cleanID($INPUT->str('dst'));
+
+        /** @var helper_plugin_move_op $moveOperator */
+        $moveOperator = plugin_load('helper', 'move_op');
+
+        if ($src && $dst) {
+            header('Content-Type: application/json');
+
+            $response = [];
+
+            // check user/group restrictions
+            if (
+                !auth_isMember($this->getConf('allowrename'), $INPUT->server->str('REMOTE_USER'), (array) $USERINFO['grps'])
+            ) {
+                $response['error'] = $this->getLang('notallowed');
+                echo json_encode($response);
+                return;
+            }
+
+            $response['success'] = $moveOperator->moveMedia($src, $dst);
+
+            if ($response['success']) {
+                $ns = getNS($dst);
+                $response['redirect_url'] = wl($dst, ['do' => 'media', 'ns' => $ns], true, '&');
+            } else {
+                $response['error'] = sprintf($this->getLang('mediamoveerror'), $src);
+                if (isset($MSG)) {
+                    foreach ($MSG as $msg) {
+                        $response['error'] .= ' ' . $msg['msg'];
+                    }
+                }
+            }
+
+            echo json_encode($response);
         }
     }
 

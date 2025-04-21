@@ -19,6 +19,7 @@ $lang['nomediarights']         = 'Du hast unzureichende Rechte, um die Mediendat
 $lang['medianotchanged']       = 'Kein Ziel für Seite %s angegeben (Ort bleibt unverändert).';
 $lang['mediaexists']           = 'Mediendatei %s kann nicht nach %s verschoben werden, da das Ziel bereits existiert.';
 $lang['nomediatargetperms']    = 'Du hast keine Berechtigung, die Mediendatei %s anzulegen.';
+$lang['extensionchange']       = 'Die Dateierweiterungen der alten und der neuen Datei sind unterschiedlich.';
 $lang['indexerror']            = 'Fehler während der Aktualisierung des Suchindexes %s';
 $lang['metamoveerror']         = 'Die Metadateien der Seite %s konnten nicht verschoben werden';
 $lang['atticmoveerror']        = 'Die Attic-Dateien der Seite %s konnten nicht verschoben werden. Bitte verschiebe Sie sie manuell.';
@@ -51,6 +52,7 @@ $lang['move_media_and_pages']  = 'Seiten und Mediendateien';
 $lang['nodst']                 = 'Kein neuer Name angegeben';
 $lang['noaction']              = 'Es wurden keine Verschiebungen angegeben';
 $lang['renamepage']            = 'Seite umbenennen';
+$lang['notallowed']            = 'Du hast unzureichende Rechte, um Seiten oder Medien umzubenennen.';
 $lang['cantrename']            = 'Auf die Seite kann zur Zeit nicht zugegriffen werden - bitte versuche es später noch einmal.';
 $lang['js']['rename']          = 'Umbenennen';
 $lang['js']['cancel']          = 'Abbrechen';
@@ -63,3 +65,7 @@ $lang['js']['duplicate']       = 'Entschuldigung, "%s" existiert in diesem Namen
 $lang['root']                  = '[Oberster Namensraum]';
 $lang['noscript']              = 'Dieses Feature benötigt JavaScript.';
 $lang['moveinprogress']        = 'Eine andere Verschiebeoperation läuft momentan, du kannst dieses Tool gerade nicht benutzen.';
+
+// Media Manager
+$lang['js']['moveButton']       = 'Datei verschieben / umbenennen';
+$lang['js']['dialogIntro']      = 'Neuer Dateiname. Du kannst den Namensraum ändern, aber nicht die Dateierweiterung.';

@@ -3,9 +3,9 @@
 /**
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  *
+ * @author Schplurtz le Déboulonné <schplurtz@laposte.net>
  * @author Gary Owen
  * @author Nicolas Friedli <nicolas@theologique.ch>
- * @author Schplurtz le Déboulonné <Schplurtz@laposte.net>
  */
 $lang['menu']                  = 'Déplacer/Renommer pages et catégories...';
 $lang['inprogress']            = '(déplacement en attente)';
@@ -21,6 +21,7 @@ $lang['nomediarights']         = 'Vous ne disposez pas des permissions suffisant
 $lang['medianotchanged']       = 'Pas de nouvelle destination pour la page %s (emplacement inchangé).';
 $lang['mediaexists']           = 'Impossible de déplacer le média %s. la cible %s existe déjà.';
 $lang['nomediatargetperms']    = 'Vous n\'avez pas les permissions de créer le média %s';
+$lang['extensionchange']       = 'L\'extension du nouveau fichier diffère de celle de l\'original.';
 $lang['indexerror']            = 'Erreur lors de la mise à jour de l\'index de recherche %s.';
 $lang['metamoveerror']         = 'Impossible de déplacer les métafichiers de la page %s.';
 $lang['atticmoveerror']        = 'L\'historique (attic) de la page %s ne peut être déplacé. Veuillez déplacer les fichiers manuellement.';
@@ -54,6 +55,7 @@ $lang['nodst']                 = 'Pas de nouveau nom donné';
 $lang['noaction']              = 'Pas de déplacement demandé';
 $lang['renamepage']            = 'Renommer la page';
 $lang['cantrename']            = 'Impossible de renommer la page maintenant. Veuillez essayer plus tard.';
+$lang['notallowed']            = 'Vous n\'êtes pas autorisé à renommer les pages ou les médias.';
 $lang['js']['rename']          = 'Renommer';
 $lang['js']['cancel']          = 'Annuler';
 $lang['js']['newname']         = 'Nouveau nom:';
@@ -62,6 +64,8 @@ $lang['js']['complete']        = 'Déplacement effectué.';
 $lang['js']['renameitem']      = 'Renommer cet élément';
 $lang['js']['add']             = 'Créer une nouvelle catégorie';
 $lang['js']['duplicate']       = 'Désolé, "%s" existe dans cette catégorie.';
+$lang['js']['moveButton']      = 'Déplacer le fichier.';
+$lang['js']['dialogIntro']     = 'Entrez le nouvel emplacement du fichier. Vous pouvez changer la catégorie, mais pas l\'extension.';
 $lang['root']                  = '[Catégorie racine]';
 $lang['noscript']              = 'Cette fonction requiert JavaScript';
 $lang['moveinprogress']        = 'Une opération de déplacement est en cours en ce moment. Vous ne pouvez pas utiliser cet outil maintenant.';

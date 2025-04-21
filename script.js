@@ -5,6 +5,8 @@
  */
 
 /* DOKUWIKI:include_once script/json2.js */
+/* DOKUWIKI:include script/MoveMediaManager.js */
+
 jQuery(function() {
     /* DOKUWIKI:include script/form.js */
     /* DOKUWIKI:include script/progress.js */
