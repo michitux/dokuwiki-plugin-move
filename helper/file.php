@@ -144,6 +144,10 @@ class helper_plugin_move_file extends DokuWiki_Plugin {
                         msg('Moving ' . hsc($old_path . '/' . $file) . ' to ' . hsc($new_path . '/' . utf8_encodeFN($dst_name . $match[1])) . ' failed.', -1);
                         return false;
                     }
+
+                    if (pathinfo($file)['extension'] == 'changes') {
+                        $this->edit_changes_file($old_path . '/' . $file, $new_path . '/' . utf8_encodeFN($dst_name . $match[1]));
+                    }
                 }
             }
             closedir($dh);
@@ -153,4 +157,26 @@ class helper_plugin_move_file extends DokuWiki_Plugin {
         }
         return true;
     }
+
+    /**
+     * Edit `.changes` meta file in order to make history of old entries accessible.
+     * 
+     * if pagename entry is not edited, users can't read or diff old entries that edited before moving.
+     *
+     * @param string $old_path Old `.changes` file path.
+     * @param string $new_path New `.changes` file path.
+     */
+    protected function edit_changes_file($old_path, $new_path) {
+        global $conf;
+
+        $history_content = file_get_contents($new_path);
+
+        $old_pagename = str_replace("/", ":", substr($old_path, strlen($conf['metadir']) + 1, -8));
+        $new_pagename = str_replace("/", ":", substr($new_path, strlen($conf['metadir']) + 1, -8));
+
+        $history_content = preg_replace('/(C|E|e|D)\t' . $old_pagename . '\t/', '$1	' . $new_pagename . '	', $history_content);
+
+        io_saveFile($new_path, $history_content);
+    }
+
 }
