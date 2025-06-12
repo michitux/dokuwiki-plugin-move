@@ -292,10 +292,11 @@ class PluginMoveTree {
      * @param li
      */
     renameGui(li) {
-        const newname = window.prompt(LANG.plugins.move.renameitem, this.getBase(li.dataset.id));
+        const basename = this.getBase(li.dataset.id);
+        const newname = window.prompt(LANG.plugins.move.renameitem, basename);
         const clean = this.cleanID(newname);
 
-        if (!clean) {
+        if (!clean || clean === basename || newname === basename ) {
             return;
         }
 
@@ -492,7 +493,11 @@ class PluginMoveTree {
     updateMovedItem(li, newID) {
         const name = li.querySelector('span');
 
-        if (li.dataset.id !== newID) {
+        if (li.dataset.orig === newID) {
+            // item was moved back to its original ID
+            li.classList.remove('changed');
+            name.title = '';
+        } else if (li.dataset.id !== newID) {
             li.dataset.id = newID;
             li.classList.add('changed');
             name.textContent = this.getBase(newID);
