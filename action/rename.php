@@ -94,6 +94,11 @@ class action_plugin_move_rename extends DokuWiki_Action_Plugin {
 
     /**
      * Rename a single page
+     *
+     * This creates a plan and executes it right away. If the user selected to move media with the page,
+     * all media files used in the original page that are located in the same namespace are moved with the page
+     * to the new namespace.
+     *
      */
     public function handle_ajax(Doku_Event $event) {
         if($event->data != 'plugin_move_rename') return;
@@ -105,22 +110,64 @@ class action_plugin_move_rename extends DokuWiki_Action_Plugin {
 
         $src = cleanID($INPUT->str('id'));
         $dst = cleanID($INPUT->str('newid'));
-
-        /** @var helper_plugin_move_op $MoveOperator */
-        $MoveOperator = plugin_load('helper', 'move_op');
+        $doMedia = $INPUT->bool('media');
 
         header('Content-Type: application/json');
 
-        if($this->renameOkay($src) && $MoveOperator->movePage($src, $dst)) {
-            // all went well, redirect
+        if(!$this->renameOkay($src)) {
+            echo json_encode(['error' => $this->getLang('cantrename')]);
+            return;
+        }
+
+        if(!$dst || $dst == $src) {
+            echo json_encode(['error' => $this->getLang('nodst')]);
+            return;
+        }
+
+        /** @var helper_plugin_move_plan $plan */
+        $plan = plugin_load('helper', 'move_plan');
+        if($plan->isCommited()) {
+            echo json_encode(['error' => $this->getLang('cantrename')]);
+            return;
+        }
+        $plan->setOption('autorewrite', true);
+        $plan->addPageMove($src, $dst); // add the page move to the plan
+
+        if($doMedia) { // move media with the page?
+            $srcNS = getNS($src);
+            $dstNS = getNS($dst);
+            $srcNSLen = strlen($srcNS);
+            // we don't do this for root namespace or if namespace hasn't changed
+            if ($srcNS != '' && $srcNS != $dstNS) {
+                $media = p_get_metadata($src, 'relation media');
+                if (is_array($media)) {
+                    foreach ($media as $file => $exists) {
+                        if(!$exists) continue;
+                        $mediaNS = getNS($file);
+                        if ($mediaNS == $srcNS) {
+                            $plan->addMediaMove($file, $dstNS . substr($file, $srcNSLen));
+                        }
+                    }
+                }
+            }
+        }
+
+        try {
+            // commit and execute the plan
+            $plan->commit();
+            do {
+                $next = $plan->nextStep();
+                if ($next === false) throw new \Exception('Move plan failed');
+            } while ($next > 0);
             echo json_encode(array('redirect_url' => wl($dst, '', true, '&')));
-        } else {
+        } catch (\Exception $e) {
+            // error should be in $MSG
             if(isset($MSG[0])) {
                 $error = $MSG[0]; // first error
             } else {
-                $error = $this->getLang('cantrename');
+                $error = $this->getLang('cantrename') . ' ' . $e->getMessage();
             }
-            echo json_encode(array('error' => $error));
+            echo json_encode(['error' => $error]);
         }
     }
 

@@ -72,6 +72,7 @@ $lang['notallowed']       = 'You are not allowed to rename pages or media.';
 $lang['js']['rename']     = 'Rename';
 $lang['js']['cancel']     = 'Cancel';
 $lang['js']['newname']    = 'New name:';
+$lang['js']['rename_media']  = 'Move referenced media files along with the page';
 $lang['js']['inprogress'] = 'renaming page and adjusting links...';
 $lang['js']['complete']   = 'Move operation finished.';
 
@@ -79,9 +80,15 @@ $lang['js']['complete']   = 'Move operation finished.';
 $lang['root']             = '[Root namespace]';
 $lang['noscript']         = 'This feature requires JavaScript';
 $lang['moveinprogress']   = 'There is another move operation in progress currently, you can\'t use this tool right now.';
+$lang['dual0']            = 'Pages and Media combined';
+$lang['dual1']            = 'Pages and Media separated';
 $lang['js']['renameitem'] = 'Rename this item';
 $lang['js']['add']        = 'Create a new namespace';
-$lang['js']['duplicate']  = 'Sorry, "%s" already exists in this namespace.';
+$lang['js']['duplicate']  = 'Sorry, item "%s" already exists.';
+
+$lang['js']['select']     = 'Select for moving';
+$lang['js']['extchange']  = 'You can not change the extension of a media file';
+
 
 // Media Manager
 $lang['js']['moveButton'] = 'Move file';

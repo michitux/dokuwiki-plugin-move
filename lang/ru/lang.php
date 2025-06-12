@@ -1,7 +1,7 @@
 <?php
 
 /**
- * russian language file 
+ * russian language file
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  *
@@ -63,7 +63,6 @@ $lang['js']['inprogress']      = 'переименование страницы 
 $lang['js']['complete']        = 'Перемещение завершено.';
 $lang['js']['renameitem']      = 'Переименовать';
 $lang['js']['add']             = 'Создать новое пространство имён';
-$lang['js']['duplicate']       = 'Не получается: „%s“ уже существует в данной папке.';
 $lang['root']                  = '[Корневой каталог]';
 $lang['noscript']              = 'Для этого требуется включить JavaScript';
 $lang['moveinprogress']        = 'Сейчас происходит другая операция перемещения; пока она не закончена, данный инструмент не работает.';
