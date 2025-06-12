@@ -28,6 +28,7 @@
     const renameFN = function () {
         const newid = $dialog.find('input[name=id]').val();
         if (!newid) return false;
+        if (newid === JSINFO.id) return false;
 
         const doMedia = $dialog.find('input[name=media]').is(':checked');
 

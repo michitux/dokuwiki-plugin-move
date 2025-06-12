@@ -119,6 +119,11 @@ class action_plugin_move_rename extends DokuWiki_Action_Plugin {
             return;
         }
 
+        if(!$dst || $dst == $src) {
+            echo json_encode(['error' => $this->getLang('nodst')]);
+            return;
+        }
+
         /** @var helper_plugin_move_plan $plan */
         $plan = plugin_load('helper', 'move_plan');
         if($plan->isCommited()) {
