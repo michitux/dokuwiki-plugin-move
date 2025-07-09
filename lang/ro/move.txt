@@ -1,0 +1,10 @@
+====== Move ======
+
+Acest plugin îți permite să muți și/sau să redenumești pagina curentă sau să muți și/sau să redenumești numele de spațiu curent cu următoarele restricții:
+
+  * Trebuie să ai permisiunea de editare pentru pagina curentă/toate paginile din numele de spațiu curent.
+  * Paginile care sunt mutate nu trebuie să fie blocate de editare.
+  * Pentru mutarea unei pagini ai nevoie de permisiunea de creare în numele de spațiu destinație.
+  * Nu poți muta o pagină într-un nume de spațiu unde există deja o pagină cu același nume.
+
+Toate legăturile din și către paginile care sunt mutate vor fi actualizate pentru a reflecta noua locație sau nume.

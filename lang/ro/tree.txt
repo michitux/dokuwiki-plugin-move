@@ -1,0 +1,7 @@
+====== Manager de mutare =====
+
+Această interfață îți permite să rearanjezi numele de spațiu, paginile și fișierele cu Drag'n'Drop.
+
+Pentru a muta mai multe nume de spațiu, pagini sau fișiere la aceeași destinație, poți activa opțiunile următoare:
+  * selectează numele de spațiu, paginile sau fișierele media pe care vrei să le muți;
+  * mută unul din elementele selectate la destinația dorită, toate elementele selectate vor fi mutate la destinație.
