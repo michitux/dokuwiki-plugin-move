@@ -1,12 +1,15 @@
 <?php
 
+use dokuwiki\Extension\RemotePlugin;
+use dokuwiki\Remote\RemoteException;
+
 /**
  * DokuWiki Plugin move (Remote Component)
  *
  * @license GPL 2 http://www.gnu.org/licenses/gpl-2.0.html
  * @author Claus-Justus Heine <himself@claus-justus-heine.de>
  */
-class remote_plugin_move extends DokuWiki_Remote_Plugin
+class remote_plugin_move extends RemotePlugin
 {
     /**
      * Rename/move a given page
@@ -14,7 +17,7 @@ class remote_plugin_move extends DokuWiki_Remote_Plugin
      * @param string $fromId The original page ID
      * @param string $toId The new page ID
      * @return true Always true when no error occured
-     * @throws \dokuwiki\Remote\RemoteException when renaming fails
+     * @throws RemoteException when renaming fails
      */
     public function renamePage(string $fromId, string $toId)
     {
@@ -39,7 +42,7 @@ class remote_plugin_move extends DokuWiki_Remote_Plugin
      * @param string $fromId The original media ID
      * @param string $toId The new media ID
      * @return true Always true when no error occured
-     * @throws \dokuwiki\Remote\RemoteException when renaming fails
+     * @throws RemoteException when renaming fails
      */
     public function renameMedia(string $fromId, string $toId)
     {
@@ -64,17 +67,17 @@ class remote_plugin_move extends DokuWiki_Remote_Plugin
      * Ideally the move operation should throw an exception, but currently only a return code is available.
      *
      * @param array $messages The DokuWiki message array
-     * @return \dokuwiki\Remote\RemoteException
+     * @return RemoteException
      */
     protected function msgToException($messages)
     {
         foreach ($messages as $msg) {
             if ($msg['lvl'] === -1) {
                 // error found return it
-                return new \dokuwiki\Remote\RemoteException($msg['msg'], 100);
+                return new RemoteException($msg['msg'], 100);
             }
         }
         // If we reach this point, no error was found
-        return new \dokuwiki\Remote\RemoteException('Unknown error', 100);
+        return new RemoteException('Unknown error', 100);
     }
 }
