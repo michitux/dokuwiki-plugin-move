@@ -1,7 +1,7 @@
 base   move
 author Michael Hamann, Gary Owen, Arno Puschmann, Christoph Jähnigen
 email  michael@content-space.de
-date   2024-05-07
+date   2025-06-09
 name   Move plugin
 desc   Move and rename pages and media files whilst maintaining the links.
 url    https://www.dokuwiki.org/plugin:move

@@ -3,6 +3,7 @@
 /**
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  *
+ * @author Petr Kajzar <petr.kajzar@centrum.cz>
  * @author Robert Surý <rsurycz@seznam.cz>
  * @author Tomáš Borland Valenta
  * @author Pavel Kochman
@@ -21,6 +22,7 @@ $lang['nomediarights']         = 'Nedostatečné oprávnění ke smazání \'%s\
 $lang['medianotchanged']       = 'Žádný cíl pro médium \'%s\' (umístění nezměněno).';
 $lang['mediaexists']           = 'Médium \'%s\' nelze přesunout do \'%s\', cíl již existuje.';
 $lang['nomediatargetperms']    = 'Nemáte oprávnění vytvořit médium \'%s\'.';
+$lang['extensionchange']       = 'Přípona nového souboru není stejná jako přípona původního souboru.';
 $lang['indexerror']            = 'Chyba při aktualizaci search index \'%s\'.';
 $lang['metamoveerror']         = 'Meta soubory stránky \'%s\' nemohou být přesunut.';
 $lang['atticmoveerror']        = 'Staré verze stránky \'%s\' nemohou být přesunuty. Prosím, přsuňte je ručně.';
@@ -54,6 +56,7 @@ $lang['nodst']                 = 'Žádné nové jméno';
 $lang['noaction']              = 'Nebyl definován přesun';
 $lang['renamepage']            = 'Přejmenovat stránku';
 $lang['cantrename']            = 'Stránka nemůže být právě přejmenována. Zkuste to později.';
+$lang['notallowed']            = 'Nemáte práva přejmenovávat stránky ani média.';
 $lang['js']['rename']          = 'Přejmenovat';
 $lang['js']['cancel']          = 'Zrušit';
 $lang['js']['newname']         = 'Nový název stránky:';
@@ -62,6 +65,8 @@ $lang['js']['complete']        = 'Přesun byl dokončen.';
 $lang['js']['renameitem']      = 'Přejmenovat tuto položku';
 $lang['js']['add']             = 'Vytvořit nový jmenný prostor';
 $lang['js']['duplicate']       = 'Lituji, ale \'%s\' již existuje ve jmenném prosoru.';
+$lang['js']['moveButton']      = 'Přesunout soubor';
+$lang['js']['dialogIntro']     = 'Zadejte nový cíl souboru. Můžete změnit jmenný prostor, ale ne příponu souboru.';
 $lang['root']                  = '[Kořen]';
 $lang['noscript']              = 'Tato vlastost vyžaduje JavaScript';
 $lang['moveinprogress']        = 'Právě probíhá jiný přsun, proto nyní nemůžete použít tento nástroj.';

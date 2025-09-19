@@ -109,20 +109,18 @@ class action_plugin_move_rename extends DokuWiki_Action_Plugin {
         /** @var helper_plugin_move_op $MoveOperator */
         $MoveOperator = plugin_load('helper', 'move_op');
 
-        $JSON = new JSON();
-
         header('Content-Type: application/json');
 
         if($this->renameOkay($src) && $MoveOperator->movePage($src, $dst)) {
             // all went well, redirect
-            echo $JSON->encode(array('redirect_url' => wl($dst, '', true, '&')));
+            echo json_encode(array('redirect_url' => wl($dst, '', true, '&')));
         } else {
             if(isset($MSG[0])) {
                 $error = $MSG[0]; // first error
             } else {
                 $error = $this->getLang('cantrename');
             }
-            echo $JSON->encode(array('error' => $error));
+            echo json_encode(array('error' => $error));
         }
     }
 

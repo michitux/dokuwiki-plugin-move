@@ -59,8 +59,7 @@ class action_plugin_move_progress extends DokuWiki_Action_Plugin {
             if($todo === 0) $return['complete'] = true;
         }
 
-        $json = new JSON();
         header('Content-Type: application/json');
-        echo $json->encode($return);
+        echo json_encode($return);
     }
 }

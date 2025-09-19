@@ -1,8 +1,4 @@
 <?php
-// must be run within Dokuwiki
-if(!defined('DOKU_INC')) die();
-
-require_once(__DIR__ . '/../helper/handler.php');
 
 /**
  * Test cases for the move plugin
@@ -18,8 +14,7 @@ class plugin_move_handler_test extends DokuWikiTest {
     }
 
     public function test_relativeLink() {
-        /** @var $handler helper_plugin_move_handler */
-        $handler = plugin_load('helper', 'move_handler');
+        $handler = new helper_plugin_move_handler();
         $handler->init('deep:namespace:page', 'used:to:be:here', array(), array(), array());
 
         $tests = array(
@@ -40,8 +35,7 @@ class plugin_move_handler_test extends DokuWikiTest {
     }
 
     public function test_resolveMoves() {
-        /** @var $handler helper_plugin_move_handler */
-        $handler = plugin_load('helper', 'move_handler');
+        $handler = new helper_plugin_move_handler();
         $handler->init(
             'deep:namespace:page',
             'used:to:be:here',

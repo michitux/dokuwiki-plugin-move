@@ -130,8 +130,7 @@ class admin_plugin_move_main extends DokuWiki_Admin_Plugin {
             return true;
         } elseif($INPUT->has('json')) {
             // input came via JSON from tree manager
-            $json = new JSON(JSON_LOOSE_TYPE);
-            $data = $json->decode($INPUT->str('json'));
+            $data = json_decode($INPUT->str('json'), true);
 
             foreach((array) $data as $entry) {
                 if($entry['class'] == 'ns') {

@@ -6,16 +6,41 @@
  * @author     Michael Hamann <michael@content-space.de>
  */
 
-// must be run within Dokuwiki
-if(!defined('DOKU_INC')) die();
+use dokuwiki\Extension\Plugin;
+use dokuwiki\File\MediaResolver;
+use dokuwiki\File\PageResolver;
+use dokuwiki\Logger;
+use dokuwiki\plugin\move\MoveResolver;
 
 /**
  * Handler class for move. It does the actual rewriting of the content.
  *
- * Note: This is not actually a valid DokuWiki Helper plugin and can not be loaded via plugin_load()
+ * It is not really a helper plugin.
+ *
+ * This should theoretically be a descendant of Doku_Handler. This would require to implement and overwrite
+ * all the mode handler methods, which would probably be the cleaner approach. For now we pretend to be a
+ * Doku_Handler, implement only the methods we need and use __call() to catch all the rest.
+ *
+ * Since Parser does not like that and expects a Doku_Handler in the constructor, we use reflection to
+ * inject our fake handler into the Parser in helper_plugin_move_rewrite:rewrite()
+ *
+ * This is not really nice, but it works. It has at leas the advantage that we would not need to update this
+ * class when a new handler is introduced - though that hasn't happened in literally decades.
+ *
+ * The other hack we're doing here is to directly append (rewritten) matches to $wikitext. This makes it easy
+ * to basically keep the syntax as is and only change the IDs. A more proper approach would be create
+ * calls, then reverse-render them in the end. This can lead to slight differences between the original syntax
+ * and the reverse-rendered one, e.g. where syntax is somewhat ambiguous
+ *
+ * @todo At least do the right thing an make this a proper Doku_Handler descendant even when we keep the wikitext
  */
-class helper_plugin_move_handler extends DokuWiki_Plugin {
-    public $calls = '';
+class helper_plugin_move_handler extends Plugin {
+    public $calls = [];
+
+    /**
+     * @var string This handler does not create calls, but rather recreates wiki text in one go.
+     */
+    public $wikitext = '';
 
     protected $id;
     protected $ns;
@@ -25,14 +50,6 @@ class helper_plugin_move_handler extends DokuWiki_Plugin {
     protected $media_moves;
     protected $handlers;
 
-    /**
-     * Do not allow re-using instances.
-     *
-     * @return bool   false - the handler must not be re-used.
-     */
-    public function isSingleton() {
-        return false;
-    }
 
     /**
      * Initialize the move handler.
@@ -58,15 +75,16 @@ class helper_plugin_move_handler extends DokuWiki_Plugin {
      *
      * @param string $old  the old, full qualified ID
      * @param string $type 'media' or 'page'
-     * @throws Exception on bad argument
+     * @throws \Exception on bad argument
      * @return string the new full qualified ID
      */
     public function resolveMoves($old, $type) {
         global $conf;
 
-        if($type != 'media' && $type != 'page') throw new Exception('Not a valid type');
+        if($type != 'media' && $type != 'page') throw new \Exception('Not a valid type');
 
-        $old = resolve_id($this->origNS, $old, false);
+        $resolver = new MoveResolver($this->origID);
+        $old = $resolver->resolveId($old);
 
         if($type == 'page') {
             // FIXME this simply assumes that the link pointed to :$conf['start'], but it could also point to another page
@@ -120,26 +138,21 @@ class helper_plugin_move_handler extends DokuWiki_Plugin {
      * @param string $relold the old, possibly relative ID
      * @param string $new    the new, full qualified ID
      * @param string $type 'media' or 'page'
-     * @throws Exception on bad argument
+     * @throws \Exception on bad argument
      * @return string
      */
     public function relativeLink($relold, $new, $type) {
         global $conf;
-        if($type != 'media' && $type != 'page') throw new Exception('Not a valid type');
+        if($type != 'media' && $type != 'page') throw new \Exception('Not a valid type');
 
         // first check if the old link still resolves
-        $exists = false;
         $old    = $relold;
         if($type == 'page') {
-            resolve_pageid($this->ns, $old, $exists);
-            // Work around bug in DokuWiki 2020-07-29 where resolve_pageid doesn't append the start page to a link to
-            // the root.
-            if ($old === '') {
-                $old = $conf['start'];
-            }
+            $resolver = new PageResolver($this->id);
         } else {
-            resolve_mediaid($this->ns, $old, $exists);
+            $resolver = new MediaResolver($this->id);
         }
+        $old = $resolver->resolveId($old);
         if($old == $new) {
             return $relold; // old link still resolves, keep as is
         }
@@ -208,14 +221,14 @@ class helper_plugin_move_handler extends DokuWiki_Plugin {
 
         if($oldID == $newID || $this->origNS == $newNS) {
             // link is still valid as is
-            $this->calls .= $match;
+            $this->wikitext .= $match;
         } else {
             if(noNS($oldID) == noNS($newID)) {
                 // only namespace changed, keep CamelCase in link
-                $this->calls .= "[[$newNS:$match]]";
+                $this->wikitext .= "[[$newNS:$match]]";
             } else {
                 // all new, keep CamelCase in title
-                $this->calls .= "[[$newID|$match]]";
+                $this->wikitext .= "[[$newID|$match]]";
             }
         }
         return true;
@@ -252,19 +265,19 @@ class helper_plugin_move_handler extends DokuWiki_Plugin {
 
         if(preg_match('/^[a-zA-Z0-9\.]+>{1}.*$/u', $link[0])) {
             // Interwiki
-            $this->calls .= $match;
+            $this->wikitext .= $match;
         } elseif(preg_match('/^\\\\\\\\[^\\\\]+?\\\\/u', $link[0])) {
             // Windows Share
-            $this->calls .= $match;
+            $this->wikitext .= $match;
         } elseif(preg_match('#^([a-z0-9\-\.+]+?)://#i', $link[0])) {
             // external link (accepts all protocols)
-            $this->calls .= $match;
+            $this->wikitext .= $match;
         } elseif(preg_match('<' . PREG_PATTERN_VALID_EMAIL . '>', $link[0])) {
             // E-Mail (pattern above is defined in inc/mail.php)
-            $this->calls .= $match;
+            $this->wikitext .= $match;
         } elseif(preg_match('!^#.+!', $link[0])) {
             // local hash link
-            $this->calls .= $match;
+            $this->wikitext .= $match;
         } else {
             $id = $link[0];
 
@@ -286,7 +299,7 @@ class helper_plugin_move_handler extends DokuWiki_Plugin {
             $new_id = $this->relativeLink($id, $new_id, 'page');
 
             if($id == $new_id) {
-                $this->calls .= $match;
+                $this->wikitext .= $match;
             } else {
                 if($params !== '') {
                     $new_id .= '?' . $params;
@@ -300,7 +313,7 @@ class helper_plugin_move_handler extends DokuWiki_Plugin {
                     $new_id .= '|' . $link[1];
                 }
 
-                $this->calls .= '[[' . $new_id . ']]';
+                $this->wikitext .= '[[' . $new_id . ']]';
             }
 
         }
@@ -317,7 +330,7 @@ class helper_plugin_move_handler extends DokuWiki_Plugin {
      * @return bool If parsing should be continued
      */
     public function media($match, $state, $pos) {
-        $this->calls .= $this->rewrite_media($match);
+        $this->wikitext .= $this->rewrite_media($match);
         return true;
     }
 
@@ -355,9 +368,9 @@ class helper_plugin_move_handler extends DokuWiki_Plugin {
      */
     public function plugin($match, $state, $pos, $pluginname) {
         if(isset($this->handlers[$pluginname])) {
-            $this->calls .= call_user_func($this->handlers[$pluginname], $match, $state, $pos, $pluginname, $this);
+            $this->wikitext .= call_user_func($this->handlers[$pluginname], $match, $state, $pos, $pluginname, $this);
         } else {
-            $this->calls .= $match;
+            $this->wikitext .= $match;
         }
         return true;
     }
@@ -371,17 +384,29 @@ class helper_plugin_move_handler extends DokuWiki_Plugin {
      */
     public function __call($name, $params) {
         if(count($params) == 3) {
-            $this->calls .= $params[0];
+            $this->wikitext .= $params[0];
             return true;
         } else {
-            trigger_error('Error, handler function ' . hsc($name) . ' with ' . count($params) . ' parameters called which isn\'t implemented', E_USER_ERROR);
+            Logger::error(
+                'Error, handler function ' . hsc($name) . ' with ' . count($params) .
+                ' parameters called which isn\'t implemented'
+            );
             return false;
         }
     }
 
-    public function _finalize() {
+    public function finalize() {
         // remove padding that is added by the parser in parse()
-        $this->calls = substr($this->calls, 1, -1);
+        $this->wikitext = substr($this->wikitext, 1, -1);
     }
 
+    /**
+     * Get the rewritten wiki text
+     *
+     * @return string The rewritten wiki text
+     */
+    public function getWikiText()
+    {
+        return $this->wikitext;
+    }
 }

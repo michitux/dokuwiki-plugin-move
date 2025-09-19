@@ -63,7 +63,7 @@ class plugin_move_namespace_move_test extends DokuWikiTest {
         $this->assertSame(0, $plan->nextStep(),'done');
 
         $this->assertFileExists(wikiFN('foo:dokuwiki'));
-        $this->assertFileNotExists(wikiFN('wiki:syntax'));
+        $this->assertFileDoesNotExist(wikiFN('wiki:syntax'));
         $this->assertFileExists(mediaFN('foo:dokuwiki-128.png'));
     }
 
@@ -93,7 +93,7 @@ class plugin_move_namespace_move_test extends DokuWikiTest {
         $this->assertSame(0, $plan->nextStep(),'done');
 
         $this->assertFileExists(wikiFN('newspace:page'));
-        $this->assertFileNotExists(wikiFN('oldspace:page'));
+        $this->assertFileDoesNotExist(wikiFN('oldspace:page'));
 
         $this->assertEquals('[[missing]]', rawWiki('newspace:page'));
     }
@@ -259,8 +259,8 @@ class plugin_move_namespace_move_test extends DokuWikiTest {
 
         $this->assertFileExists(wikiFN('newns:start'));
         $this->assertFileExists(wikiFN('newns:page'));
-        $this->assertFileNotExists(wikiFN('oldns:start'));
-        $this->assertFileNotExists(wikiFN('oldns:page'));
+        $this->assertFileDoesNotExist(wikiFN('oldns:start'));
+        $this->assertFileDoesNotExist(wikiFN('oldns:page'));
 
         $this->assertSame('[[newns:start]] [[newns:page]] [[newns:missing]] [[missing]] [[page]]',rawWiki('newns:start'));
         $this->assertSame('[[newns:start]] [[newns:page]] [[newns:missing]] [[missing]] [[start]]',rawWiki('newns:page'));
@@ -300,7 +300,7 @@ class plugin_move_namespace_move_test extends DokuWikiTest {
         $this->assertSame(0, $plan->nextStep(), 'done');
 
         $this->assertFileExists(mediaFN('newns:oldnsimage.png'));
-        $this->assertFileNotExists(mediaFN('oldns:oldnsimage.png'));
+        $this->assertFileDoesNotExist(mediaFN('oldns:oldnsimage.png'));
 
         $this->assertSame('{{newns:oldnsimage.png}} {{newns:oldnsimage_missing.png}} {{image_missing.png}}',rawWiki('start'));
     }
@@ -338,7 +338,7 @@ class plugin_move_namespace_move_test extends DokuWikiTest {
         $this->assertSame(0, $plan->nextStep(), 'done');
 
         $this->assertFileExists(mediaFN('newns:oldnsimage.png'));
-        $this->assertFileNotExists(mediaFN('oldns:oldnsimage.png'));
+        $this->assertFileDoesNotExist(mediaFN('oldns:oldnsimage.png'));
 
         $this->assertSame('{{newns:oldnsimage.png}} {{newns:oldnsimage_missing.png}} {{newns:oldnsimage_missing.png}} {{newns:oldnsimage.png}}',rawWiki('oldns:start'));
     }
@@ -384,7 +384,7 @@ class plugin_move_namespace_move_test extends DokuWikiTest {
         $this->assertSame(0, $plan->nextStep(), 'done');
 
         $this->assertFileExists(mediaFN('newns:oldnsimage.png'));
-        $this->assertFileNotExists(mediaFN('oldns:oldnsimage.png'));
+        $this->assertFileDoesNotExist(mediaFN('oldns:oldnsimage.png'));
 
         $this->assertSame("[[newns:start]] [[newns:page]] [[newns:missing]]\n{{newns:oldnsimage.png}} {{newns:oldnsimage_missing.png}} {{oldnsimage_missing.png}}",rawWiki('start'));
     }
@@ -425,8 +425,8 @@ class plugin_move_namespace_move_test extends DokuWikiTest {
 
         $this->assertFileExists(wikiFN('newns:start'));
         $this->assertFileExists($newfilepath);
-        $this->assertFileNotExists(wikiFN('subns:start'));
-        $this->assertFileNotExists($oldfilepath);
+        $this->assertFileDoesNotExist(wikiFN('subns:start'));
+        $this->assertFileDoesNotExist($oldfilepath);
 
         $this->assertSame($subscription,file_get_contents($newfilepath));
 
@@ -468,8 +468,8 @@ class plugin_move_namespace_move_test extends DokuWikiTest {
 
         $this->assertFileExists(wikiFN('newns:start'));
         $this->assertFileExists($newfilepath);
-        $this->assertFileNotExists(wikiFN('subns:start'));
-        $this->assertFileNotExists($oldfilepath);
+        $this->assertFileDoesNotExist(wikiFN('subns:start'));
+        $this->assertFileDoesNotExist($oldfilepath);
 
         $this->assertSame($subscription,file_get_contents($newfilepath));
 

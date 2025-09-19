@@ -946,7 +946,7 @@ class helper_plugin_move_plan extends DokuWiki_Plugin {
     protected function write_log ($log) {
         global $conf;
         $optime = $this->options['started'];
-        $file   = $conf['cachedir'] . '/move/' . strftime('%Y%m%d-%H%M%S', $optime) . '.log';
+        $file   = $conf['cachedir'] . '/move/' . dformat($optime, '%Y%m%d-%H%M%S') . '.log';
         io_saveFile($file, $log, true);
     }
 
