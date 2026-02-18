@@ -6,6 +6,7 @@
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  * @auther     Wojciech Kazimierczak <w.kazimierczak@gmail.com>
  *
+ * @author Piotr Strebski <piotr@strebski.pl>
  * @author Marcin <mq4958@gmail.com>
  * @author Gary Owen
  */
@@ -35,7 +36,18 @@ $lang['preview']               = 'Podgląd zmian do wykonania.';
 $lang['inexecution']           = 'Poprzedni ruch nie został ukończony - użyj poniższych przycisków, aby kontynuować lub przerwać jego wykonywanie.';
 $lang['btn_start']             = 'Rozpocznij';
 $lang['btn_continue']          = 'Kontynuuj';
+$lang['btn_abort']             = 'Przerwij';
+$lang['movepage']              = 'Przenieś stronę';
+$lang['dst']                   = 'Nowa nazwa:';
+$lang['content_to_move']       = 'Zawartość do przeniesienia:';
+$lang['move_pages']            = 'Strony';
+$lang['move_media']            = 'Pliki mediów';
+$lang['move_media_and_pages']  = 'Strony i pliki mediów';
+$lang['renamepage']            = 'Zmień nazwę strony';
 $lang['notallowed']            = 'Brak uprawnień do wykonania zmiany.';
+$lang['js']['rename']          = 'Zmień nazwę';
+$lang['js']['cancel']          = 'Anuluj';
+$lang['js']['newname']         = 'Nowa nazwa:';
 $lang['js']['moveButton']      = 'Przenieś/Zmień nazwę';
 $lang['js']['dialogIntro']     = 'Nowa nazwa pliku. Możesz zmienić katalog, ale nie rozszerzenie pliku.';
 $lang['root']                  = '[katalog bazowy]';
