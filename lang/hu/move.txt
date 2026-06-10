@@ -1,0 +1,10 @@
+====== Áthelyezés ======
+
+Ez a bővítmény lehetővé teszi oldalak és névterek áthelyezését és átnevezését az alábbi korlátok között:
+
+  * Szerkesztési jogosultsággal kell rendelkeznie az átnevezendő oldalon, vagy az átnevezendő névtér egészében.
+  * Az átnevezendő oldalak nem lehetnek zárolva.
+  * Áthelyezésnél a célnévtérben is létrehozási jogosultsággal kell rendelkeznie.
+  * Egy oldalt nem lehet olyan névtérbe áthelyezni, ahol már létezik ugyanolyan nevű oldal.
+
+Az áthelyezett oldalak hivatkozásai automatikusan frissítve lesznek, hogy az új elérési útvonalra mutassanak.

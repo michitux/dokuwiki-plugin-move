@@ -1,0 +1,7 @@
+====== Áthelyezéskezelő =====
+
+Ezen a felületen „fogd és vidd” módszerrel rendezheted át a webhelyen található névtereket, oldalakat és fájlokat.
+
+Ha több névteret, oldalt vagy fájlt kívánsz áthelyezni ugyanarra a helyre, akkor:
+  * válaszd ki az áthelyezni kívánt elemeket a mellettük látható jelölőnégyzetekkel;
+  * majd húzd át bármelyik elemet a kívánt helyre. Ezzel minden elem át lesz helyezve.
