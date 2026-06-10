@@ -71,6 +71,54 @@ class helper_plugin_move_handler extends Plugin {
     }
 
     /**
+     * Dispatch a parser token to the appropriate rewrite method
+     *
+     * Since DokuWiki's parser refactoring (PR #4618), the Lexer no longer calls a method
+     * named after each mode on the handler. Instead it routes every token through this
+     * single entry point. We reimplement the part of that dispatch we care about here so
+     * our fake handler keeps working. The per-mode methods and __call() below are kept so
+     * the plugin stays compatible with older DokuWiki releases that still use the legacy
+     * per-mode dispatch - there this method is simply never called.
+     *
+     * @param string $modeName         The resolved mode name
+     * @param string $match            The matched text
+     * @param int    $state            The lexer state (a DOKU_LEXER_* constant)
+     * @param int    $pos              Byte position in the source
+     * @param string $originalModeName The original mode name before mapHandler() remapping
+     * @return bool If parsing should be continued
+     */
+    public function handleToken($modeName, $match, $state, $pos, $originalModeName = '') {
+        // plugin modes carry the plugin name within the mode name
+        if(strpos($modeName, 'plugin_') === 0) {
+            $pluginname = substr($modeName, strlen('plugin_'));
+            return $this->plugin($match, $state, $pos, $pluginname);
+        }
+
+        // the modes we actually rewrite have a method of the same name
+        if($modeName === 'internallink' || $modeName === 'media' || $modeName === 'camelcaselink') {
+            return $this->$modeName($match, $state, $pos);
+        }
+
+        // everything else is kept verbatim (what __call() does under the legacy dispatch)
+        $this->wikitext .= $match;
+        return true;
+    }
+
+    /**
+     * Register a mode object for token dispatch
+     *
+     * Called by the Parser when modes are added (since PR #4618). We do our own dispatching
+     * in handleToken() and don't use the mode objects, so this is a no-op. It only exists to
+     * satisfy the new Parser/Handler contract; on older DokuWiki releases it is never called.
+     *
+     * @param string $name Mode name
+     * @param mixed  $obj  The mode object
+     */
+    public function registerModeObject($name, $obj) {
+        // no-op, see handleToken()
+    }
+
+    /**
      * Go through the list of moves and find the new value for the given old ID
      *
      * @param string $old  the old, full qualified ID
