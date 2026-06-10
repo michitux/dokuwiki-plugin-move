@@ -61,7 +61,6 @@ $lang['js']['inprogress']      = '문서의 이름을 바꾸고 링크를 조절
 $lang['js']['complete']        = '이동 작업이 완료되었습니다.';
 $lang['js']['renameitem']      = '이 항목 이름 바꾸기';
 $lang['js']['add']             = '새 이름공간 만들기';
-$lang['js']['duplicate']       = '죄송하지만, "%s" 문서는 이미 이 이름공간에 존재합니다.';
 $lang['root']                  = '[루트 이름공간]';
 $lang['noscript']              = '이 기능은 자바스크립트가 필요합니다';
 $lang['moveinprogress']        = '현재 진행 중인 다른 이동 작업이 있으므로, 지금 바로 이 도구를 사용할 수 없습니다.';

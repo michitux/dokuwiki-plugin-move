@@ -60,7 +60,6 @@ $lang['js']['inprogress']      = 'renomeando página e ajustando links...';
 $lang['js']['complete']        = 'Operação de movimentação concluída.';
 $lang['js']['renameitem']      = 'Renomear este item';
 $lang['js']['add']             = 'Criar um novo domínio';
-$lang['js']['duplicate']       = 'Desculpe, "%s" já existe neste domínio.';
 $lang['root']                  = '[Domínio raiz]';
 $lang['noscript']              = 'Este recurso requer JavaScript';
 $lang['moveinprogress']        = 'Há outra operação de movimentação em andamento no momento, você não pode usar esta ferramenta agora.';

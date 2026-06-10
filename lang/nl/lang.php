@@ -62,7 +62,6 @@ $lang['js']['inprogress']      = 'pagina hernoemen en links aanpassen...';
 $lang['js']['complete']        = 'Verplaatsing compleet.';
 $lang['js']['renameitem']      = 'Hernoem dit item';
 $lang['js']['add']             = 'Maak een nieuwe namespace';
-$lang['js']['duplicate']       = 'Sorry, "%s" bestaat al in deze namespace.';
 $lang['root']                  = '[Hoofdnamespace]';
 $lang['noscript']              = 'Deze mogelijkheid vereist Javascript';
 $lang['moveinprogress']        = 'Er is een andere verplaatsingsactie gaande, gebruik van deze tool is momenteel niet mogelijk.';

@@ -60,7 +60,6 @@ $lang['js']['inprogress']      = '重新命名頁面並修正有關鏈結：';
 $lang['js']['complete']        = '移動操作完畢。';
 $lang['js']['renameitem']      = '重新命名該項';
 $lang['js']['add']             = '產生新的目錄';
-$lang['js']['duplicate']       = '抱歉，"%s"在該目錄已存在';
 $lang['root']                  = '[根目錄]';
 $lang['noscript']              = '此功能需要JavaScript';
 $lang['moveinprogress']        = '另一個移動操作正在進行，您現在無法使用該工具';

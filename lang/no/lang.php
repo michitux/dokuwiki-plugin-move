@@ -63,7 +63,6 @@ $lang['js']['inprogress']      = 'endrer navn på side og justerer lenker...';
 $lang['js']['complete']        = 'Flytting avsluttet';
 $lang['js']['renameitem']      = 'Endre navn ';
 $lang['js']['add']             = 'Lag et nytt navnerom';
-$lang['js']['duplicate']       = 'Beklager, "%s" finnes allerede i dette navnerommet.';
 $lang['root']                  = '[Rot navnerom]';
 $lang['noscript']              = 'Denne funksjonen krever Javascript';
 $lang['moveinprogress']        = 'En annen flyttingsjobb pågår for øyeblikket så denne funksjonen kan ikke brukes akkurat nå. ';

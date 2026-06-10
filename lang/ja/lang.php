@@ -59,7 +59,6 @@ $lang['js']['inprogress']      = 'ページの名称変更・リンクの書き�
 $lang['js']['complete']        = '名称変更操作が完了しました。';
 $lang['js']['renameitem']      = 'この項目を名称変更します。';
 $lang['js']['add']             = '新しい名前空間の作成';
-$lang['js']['duplicate']       = '"%s" はこの名前空間内に既に存在します。';
 $lang['root']                  = '[ルート名前空間]';
 $lang['noscript']              = 'この機能には JavaScriptが必要です。';
 $lang['moveinprogress']        = '別の移動操作を処理中なので、今はこのツールを使用できません。';

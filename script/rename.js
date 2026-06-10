@@ -14,6 +14,9 @@
         '<label>' + LANG.plugins.move.newname + '<br>' +
         '<input type="text" name="id" style="width:100%">' +
         '</label>' +
+        '<label>' +
+        '<input type="checkbox" name="media" value="1"> ' + LANG.plugins.move.rename_media +
+        '</label>' +
         '</form>' +
         '</div>'
     );
@@ -25,6 +28,9 @@
     const renameFN = function () {
         const newid = $dialog.find('input[name=id]').val();
         if (!newid) return false;
+        if (newid === JSINFO.id) return false;
+
+        const doMedia = $dialog.find('input[name=media]').is(':checked');
 
         // remove buttons and show throbber
         $dialog.html(
@@ -39,12 +45,13 @@
             {
                 call: 'plugin_move_rename',
                 id: JSINFO.id,
-                newid: newid
+                newid: newid,
+                media: doMedia ? 1 : 0,
             },
             // redirect or display error
             function (result) {
                 if (result.error) {
-                    $dialog.html(result.error.msg);
+                    $dialog.html(result.error);
                 } else {
                     window.location.href = result.redirect_url;
                 }

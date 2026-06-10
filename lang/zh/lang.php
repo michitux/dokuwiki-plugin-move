@@ -65,7 +65,6 @@ $lang['js']['inprogress']      = '重命名页面并修正有关链接：';
 $lang['js']['complete']        = '移动操作完毕。';
 $lang['js']['renameitem']      = '重命名该项';
 $lang['js']['add']             = '创建一个新的名称空间';
-$lang['js']['duplicate']       = '抱歉，"%s"在该目录已存在';
 $lang['js']['moveButton']      = '文件移动';
 $lang['js']['dialogIntro']     = '输入新文件的目标位置。您可以更改命名空间，但无法更改文件扩展名';
 $lang['root']                  = '[跟目录]';

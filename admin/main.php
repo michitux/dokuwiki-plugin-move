@@ -105,16 +105,25 @@ class admin_plugin_move_main extends DokuWiki_Admin_Plugin {
         $this->plan->setOption('autorewrite', $INPUT->bool('autorewrite'));
 
         if($ID && $INPUT->has('dst')) {
+            // input came from form
             $dst = trim($INPUT->str('dst'));
             if($dst == '') {
                 msg($this->getLang('nodst'), -1);
                 return false;
             }
 
-            // input came from form
             if($INPUT->str('class') == 'namespace') {
                 $src = getNS($ID);
+            } else {
+                $src = $ID;
+            }
 
+            if($dst == $src) {
+                msg(sprintf($this->getLang('notchanged'), $src), -1);
+                return false;
+            }
+
+            if($INPUT->str('class') == 'namespace') {
                 if($INPUT->str('type') == 'both') {
                     $this->plan->addPageNamespaceMove($src, $dst);
                     $this->plan->addMediaNamespaceMove($src, $dst);
@@ -124,7 +133,7 @@ class admin_plugin_move_main extends DokuWiki_Admin_Plugin {
                     $this->plan->addMediaNamespaceMove($src, $dst);
                 }
             } else {
-                $this->plan->addPageMove($ID, $INPUT->str('dst'));
+                $this->plan->addPageMove($src, $INPUT->str('dst'));
             }
             $this->plan->commit();
             return true;

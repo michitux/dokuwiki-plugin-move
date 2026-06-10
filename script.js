@@ -7,9 +7,19 @@
 /* DOKUWIKI:include_once script/json2.js */
 /* DOKUWIKI:include script/MoveMediaManager.js */
 
-jQuery(function() {
+jQuery(function () {
     /* DOKUWIKI:include script/form.js */
     /* DOKUWIKI:include script/progress.js */
-    /* DOKUWIKI:include script/tree.js */
     /* DOKUWIKI:include script/rename.js */
+
+
+    // lazy load the tree manager
+    const $tree = jQuery('#plugin_move__tree');
+    if ($tree.length) {
+        jQuery.getScript(
+            DOKU_BASE + 'lib/plugins/move/script/tree.js',
+            () => new PluginMoveTree($tree.get(0))
+        );
+    }
+
 });
