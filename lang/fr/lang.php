@@ -59,6 +59,7 @@ $lang['notallowed']            = 'Vous n\'êtes pas autorisé à renommer les pa
 $lang['js']['rename']          = 'Renommer';
 $lang['js']['cancel']          = 'Annuler';
 $lang['js']['newname']         = 'Nouveau nom:';
+$lang['js']['rename_media']    = 'Déplacer les médias référencés en même tant que la page';
 $lang['js']['inprogress']      = 'Renommage des pages et ajustement des pages en cours...';
 $lang['js']['complete']        = 'Déplacement effectué.';
 $lang['js']['renameitem']      = 'Renommer cet élément';
@@ -68,3 +69,12 @@ $lang['js']['dialogIntro']     = 'Entrez le nouvel emplacement du fichier. Vous 
 $lang['root']                  = '[Catégorie racine]';
 $lang['noscript']              = 'Cette fonction requiert JavaScript';
 $lang['moveinprogress']        = 'Une opération de déplacement est en cours en ce moment. Vous ne pouvez pas utiliser cet outil maintenant.';
+
+$lang['dual0']            = 'Pages et médias combinés';
+$lang['dual1']            = 'Pages et médias séparés';
+$lang['js']['duplicate']  = 'Désolé, l\'élément « %s » existe déjà.';
+
+$lang['js']['select']     = 'Select for moving';
+$lang['js']['extchange']  = 'Vous ne pouvez pas modifier l\'extension d\'un fichier de média';
+
+

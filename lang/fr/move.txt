@@ -1,10 +1,10 @@
 ====== Move ======
 
-Cette extension permet de déplacer et/ou renommer le document courant ou la catégorie courante, avec les limitations suivantes :
+Cette extension permet de déplacer et/ou renommer la page courant ou la catégorie courante, avec les limitations suivantes :
 
-  * Il faut avoir les droits d'édition sur le document/tous les documents de la catégorie
-  * Les documents ne doivent pas être verrouillés pour l'édition
-  * Pour déplacer une page il faut également disposer du droit de création dans la catégorie de destination
-  * Il est impossible de déplacer le document vers une catégorie où un document du même nom existe déjà.
+  * Il faut avoir les droits d'édition sur le document/tous les pages de la catégorie,
+  * Les pages ne doivent pas être verrouillés pour l'édition,
+  * Pour déplacer une page il faut également disposer du droit de création dans la catégorie de destination,
+  * Il est impossible de déplacer le page vers une catégorie où un document du même nom existe déjà.
 
-Tous les liens depuis et vers la page seront mis à jour pour refléter le nouvel emplacement et/ou le nouveau nom.
+Tous les liens depuis et vers les pages déplacées seront mis à jour pour refléter le nouvel emplacement et/ou le nouveau nom.

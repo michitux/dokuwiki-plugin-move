@@ -1,3 +1,8 @@
 ====== Gestionnaire déplacement =====
 
-Cette interface vous permet de réorganiser catégories, pages et médias de votre wiki par glisser-déposer.
+Cette interface vous permet de réorganiser catégories, pages et médias du wiki par glisser-déposer.
+
+Cliquer sur une catégorie pour l'ouvrir, cliquer sur les icônes pour sélectionner les éléments. Tous les éléments sélectionnés seront déplacés ensemble. Cliquer sur un nom pour renommer l'élément correspondant. Utiliser l'icône d'édition pour renommer une catégorie, une page, ou un fichier.
+
+Le bouton "démarrer" en bas de page démarre le traitement. Vous aurez une dernière occasion d'examiner tous les changements résultant de vos choix avant qu'ils ne soient appliqués.
+
