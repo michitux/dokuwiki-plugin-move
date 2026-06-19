@@ -1,0 +1,7 @@
+====== Menedżer przenoszenia =====
+
+Ten interfejs umożliwia zmianę kolejności przestrzeni nazw, stron i plików multimedialnych wiki za pomocą funkcji „przeciągnij i upuść”.
+
+Kliknij nazwy przestrzeni nazw, aby je otworzyć, a następnie kliknij ikony, aby wybrać elementy. Wszystkie zaznaczone elementy zostaną przeniesione razem. Kliknij nazwy, aby zmienić nazwy poszczególnych elementów. Użyj ikony edycji, aby zmienić nazwę przestrzeni nazw, strony lub pliku.
+
+Kliknij przycisk „Rozpocznij” u dołu, aby rozpocząć proces przenoszenia. Będziesz mieć możliwość przejrzenia wszystkich zmian wynikających z przeniesienia przed ich zastosowaniem.
