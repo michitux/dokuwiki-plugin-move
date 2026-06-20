@@ -279,6 +279,19 @@ class helper_plugin_move_rewrite extends Plugin {
             $text     = $this->rewrite($id, $text);
 
             $changed = ($old_text != $text);
+
+            // Safety guard: a rewrite only ever changes link targets, it must never turn a
+            // non-empty page into an empty one. If it does, the rewriter ran into a problem
+            // (e.g. an incompatible parser). Refuse to save, because saving empty content
+            // would delete the page. dokuwiki/dokuwiki#4646
+            if($changed && trim($text) === '' && trim($old_text) !== '') {
+                msg(
+                    'Error: Rewriting page ' . hsc($id) .
+                    ' resulted in empty content. Not saving to prevent data loss.', -1
+                );
+                return false;
+            }
+
             $file    = wikiFN($id, '', false);
             if ($save === true) {
                 if(is_writable($file) || !$changed) {
