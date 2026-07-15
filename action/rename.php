@@ -105,7 +105,6 @@ class action_plugin_move_rename extends DokuWiki_Action_Plugin {
         $event->preventDefault();
         $event->stopPropagation();
 
-        global $MSG;
         global $INPUT;
 
         $src = cleanID($INPUT->str('id'));
@@ -127,7 +126,7 @@ class action_plugin_move_rename extends DokuWiki_Action_Plugin {
         /** @var helper_plugin_move_plan $plan */
         $plan = plugin_load('helper', 'move_plan');
         if($plan->isCommited()) {
-            echo json_encode(['error' => $this->getLang('cantrename')]);
+            echo json_encode(['error' => $this->getLang('moveinprogress')]);
             return;
         }
         $plan->setOption('autorewrite', true);
@@ -154,20 +153,21 @@ class action_plugin_move_rename extends DokuWiki_Action_Plugin {
 
         try {
             // commit and execute the plan
-            $plan->commit();
+            if(!$plan->commit()) {
+                // a failed commit leaves its reason in the global message array
+                throw new \Exception($plan->lastMessage() ?: $this->getLang('cantrename'));
+            }
             do {
                 $next = $plan->nextStep();
-                if ($next === false) throw new \Exception('Move plan failed');
+                if ($next === false) {
+                    // storeError() has moved the reason into the plan's options and
+                    // cleared the global message array, so read the detail from there
+                    throw new \Exception($plan->getOption('lasterror') ?: $this->getLang('cantrename'));
+                }
             } while ($next > 0);
             echo json_encode(array('redirect_url' => wl($dst, '', true, '&')));
         } catch (\Exception $e) {
-            // error should be in $MSG
-            if(isset($MSG[0])) {
-                $error = $MSG[0]; // first error
-            } else {
-                $error = $this->getLang('cantrename') . ' ' . $e->getMessage();
-            }
-            echo json_encode(['error' => $error]);
+            echo json_encode(['error' => $e->getMessage()]);
         }
     }
 
