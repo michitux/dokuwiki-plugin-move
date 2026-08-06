@@ -144,13 +144,66 @@ class helper_plugin_move_file extends DokuWiki_Plugin {
                         msg('Moving ' . hsc($old_path . '/' . $file) . ' to ' . hsc($new_path . '/' . utf8_encodeFN($dst_name . $match[1])) . ' failed.', -1);
                         return false;
                     }
+
+                    if (pathinfo($file)['extension'] == 'changes') {
+                        $edit_changes_result = $this->edit_changes_file($new_path . '/' . utf8_encodeFN($dst_name . $match[1]), $src_ns, $src_name, $dst_ns, $dst_name);
+                        if (!$edit_changes_result) {
+                            msg('Editing history file ' . $new_path . ' failed.', -1);
+                            return false;
+                        }
+                    }
                 }
             }
+
             closedir($dh);
         } else {
             msg('Directory ' . hsc($old_path) . ' couldn\'t be opened.', -1);
             return false;
         }
         return true;
+    }
+
+    /**
+     * Edit `.changes` meta file in order to make history of old entries accessible.
+     * 
+     * if pageid entry is not edited, users can't read or diff with old revision.
+     *
+     * @param string $file_path  Path of '.changes' file to be edited.
+     * @param string $src_ns     The original namespace
+     * @param string $src_name   The original basename of the moved doc (empty for namespace moves)
+     * @param string $dst_ns     The namespace after the move
+     * @param string $dst_name   The basename after the move (empty for namespace moves)
+     * @return bool If operation was successful.
+     */
+    protected function edit_changes_file($file_path, $src_ns, $src_name, $dst_ns, $dst_name) {
+
+        if ($src_ns !== false) {
+            $old_pageid = $src_ns . ":" . $src_name;
+        } else {
+            $old_pageid = $src_name;
+        }
+
+        if ($dst_ns !== false) {
+            $new_pageid = $dst_ns . ":" . $dst_name;
+        } else {
+            $new_pageid = $dst_name;
+        }
+
+        $history_content = file_get_contents($file_path);
+ 
+        if ($history_content === false) {
+            return false;
+        } 
+
+        $history_content = preg_replace('/(C|E|e|D)\t' . preg_quote($old_pageid) . '\t/', '$1	' . preg_quote($new_pageid) . '	', $history_content);
+        
+        $result = io_saveFile($file_path, $history_content);
+
+        if (!$result) {
+            return false;
+        }
+
+        return true;
+
     }
 }
