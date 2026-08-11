@@ -498,7 +498,8 @@ class helper_plugin_move_plan extends DokuWiki_Plugin {
 
                     // automatically skip this item only if wanted...
                     if(!$this->options['autoskip']) {
-                        // ...otherwise abort the operation
+                        // ...otherwise record the failure and abort the operation
+                        $this->write_log($log);
                         fclose($doclist);
                         $return_items_run = false;
                         break;
@@ -922,8 +923,6 @@ class helper_plugin_move_plan extends DokuWiki_Plugin {
      * @author Michael Große <grosse@cosmocode.de>
      */
     public function build_log_line ($type, $from, $to, $success) {
-        global $MSG;
-
         $now = time();
         $date   = date('Y-m-d H:i:s', $now); // for human readability
         if($success) {
@@ -931,11 +930,22 @@ class helper_plugin_move_plan extends DokuWiki_Plugin {
             $msg = '';
         } else {
             $ok  = 'failed';
-            $msg = $MSG[count($MSG) - 1]['msg']; // get detail from message array
+            $msg = $this->lastMessage(); // get detail from message array
         }
 
         $log = "$now\t$date\t$type\t$from\t$to\t$ok\t$msg\n";
         return $log;
+    }
+
+    /**
+     * Get the text of the last message in the global message array
+     *
+     * @return string the message text or an empty string if none is available
+     */
+    public function lastMessage() {
+        global $MSG;
+        $last = is_array($MSG) ? end($MSG) : false;
+        return (is_array($last) && isset($last['msg'])) ? $last['msg'] : '';
     }
 
     /**
