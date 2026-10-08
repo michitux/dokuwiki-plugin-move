@@ -5,6 +5,7 @@
  *
  * @license    GPL 2 (http://www.gnu.org/licenses/gpl.html)
  *
+ * @author Alexander <ChanSee89@Mail.RU>
  * @author Aleksandr Selivanov <alexgearbox@yandex.ru>
  * @author S'Adm*n <s-adm_n@mail.ru>
  * @author Chang Zhao <admin@zen-do.ru>
@@ -63,6 +64,7 @@ $lang['js']['inprogress']      = 'переименование страницы 
 $lang['js']['complete']        = 'Перемещение завершено.';
 $lang['js']['renameitem']      = 'Переименовать';
 $lang['js']['add']             = 'Создать новое пространство имён';
+$lang['js']['duplicate']       = 'Элемент "%s" уже существует.';
 $lang['root']                  = '[Корневой каталог]';
 $lang['noscript']              = 'Для этого требуется включить JavaScript';
 $lang['moveinprogress']        = 'Сейчас происходит другая операция перемещения; пока она не закончена, данный инструмент не работает.';
