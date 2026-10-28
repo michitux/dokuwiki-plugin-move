@@ -1,0 +1,9 @@
+====== Movimentação ======
+Este plugin permite mover e/ou renomear a página atual ou mover e/ou renomear o namespace atual dentro das seguintes restrições:
+
+  * Você deve ter permissão de edição para a página atual ou para todas as páginas no namespace atual.
+  * As páginas que serão movidas não devem estar bloqueadas para edição.
+  * Para mover uma página, você também precisa criar permissão no namespace de destino.
+  * Você não pode mover uma página para um namespace onde já existe uma página com o mesmo nome.
+
+Todos os links de e para as páginas movidas serão atualizados para refletir o novo local e/ou nome.
