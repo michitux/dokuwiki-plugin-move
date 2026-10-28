@@ -121,4 +121,53 @@ class plugin_move_mediamove_test extends DokuWikiTest {
 
         $this->assertEquals('{{wiki:foobar:test_image.png?200|test image}}', rawWiki('wiki:movetest'));
     }
+
+    /**
+     * Test media rename via Media Manager AJAX endpoint rewrites affected pages
+     *
+     * @group slow
+     */
+    public function test_mediaManagerRenameRewritesAffectedPages() {
+        global $AUTH_ACL, $INPUT, $USERINFO;
+        $AUTH_ACL[] = "fusion:*\t@ALL\t16";
+        $AUTH_ACL[] = "fusion:*\t@user\t16";
+
+        $INPUT->server->set('REMOTE_USER', 'testuser');
+        $USERINFO = ['grps' => ['user']];
+
+        $src = 'fusion:tasks:screencapture-glpi-example-front-printer-form-php-2020-11-20-09_14_34.png';
+        $dst = 'fusion:tasks:screencapture-glpi-front-printer-form-php-2020-11-20-09_14_34.png';
+
+        $filepath = mediaFN($src);
+        io_makeFileDir($filepath);
+        io_saveFile($filepath, 'dummy content');
+
+        $page = 'fusion:tasks:task_example';
+        saveWikiText($page, '{{ :fusion:tasks:screencapture-glpi-example-front-printer-form-php-2020-11-20-09_14_34.png |}}', 'Test setup');
+        idx_addPage($page);
+
+        $INPUT->set('sectok', getSecurityToken());
+        $INPUT->set('src', $src);
+        $INPUT->set('dst', $dst);
+
+        /** @var action_plugin_move_rename $action */
+        $action = plugin_load('action', 'move_rename');
+        $call = 'plugin_move_rename_mediamanager';
+        $event = new Doku_Event('AJAX_CALL_UNKNOWN', $call);
+
+        ob_start();
+        $action->handleAjaxMediaManager($event);
+        $output = ob_get_clean();
+
+        $response = json_decode($output, true);
+        $this->assertTrue($response['success']);
+        $this->assertTrue(@file_exists(mediaFN($dst)));
+        $this->assertFalse(@file_exists(mediaFN($src)));
+
+        // Verify page file on disk was rewritten immediately
+        $this->assertEquals(
+            '{{ fusion:tasks:screencapture-glpi-front-printer-form-php-2020-11-20-09_14_34.png |}}',
+            rawWiki($page)
+        );
+    }
 }

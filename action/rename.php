@@ -195,9 +195,6 @@ class action_plugin_move_rename extends DokuWiki_Action_Plugin {
         $src = cleanID($INPUT->str('src'));
         $dst = cleanID($INPUT->str('dst'));
 
-        /** @var helper_plugin_move_op $moveOperator */
-        $moveOperator = plugin_load('helper', 'move_op');
-
         if ($src && $dst) {
             header('Content-Type: application/json');
 
@@ -212,17 +209,35 @@ class action_plugin_move_rename extends DokuWiki_Action_Plugin {
                 return;
             }
 
-            $response['success'] = $moveOperator->moveMedia($src, $dst);
+            /** @var helper_plugin_move_plan $plan */
+            $plan = plugin_load('helper', 'move_plan');
+            if ($plan->isCommited()) {
+                $response['error'] = $this->getLang('cantrename');
+                echo json_encode($response);
+                return;
+            }
+            $plan->setOption('autorewrite', true);
+            $plan->addMediaMove($src, $dst);
 
-            if ($response['success']) {
+            try {
+                $plan->commit();
+                do {
+                    $next = $plan->nextStep();
+                    if ($next === false) throw new \Exception('Move plan failed');
+                } while ($next > 0);
+
+                $response['success'] = true;
                 $ns = getNS($dst);
                 $response['redirect_url'] = wl($dst, ['do' => 'media', 'ns' => $ns], true, '&');
-            } else {
+            } catch (\Exception $e) {
+                $response['success'] = false;
                 $response['error'] = sprintf($this->getLang('mediamoveerror'), $src);
-                if (isset($MSG)) {
+                if (isset($MSG) && is_array($MSG)) {
                     foreach ($MSG as $msg) {
                         $response['error'] .= ' ' . $msg['msg'];
                     }
+                } else {
+                    $response['error'] .= ' ' . $e->getMessage();
                 }
             }
 

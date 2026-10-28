@@ -931,7 +931,10 @@ class helper_plugin_move_plan extends DokuWiki_Plugin {
             $msg = '';
         } else {
             $ok  = 'failed';
-            $msg = $MSG[count($MSG) - 1]['msg']; // get detail from message array
+            $msg = '';
+            if (is_array($MSG) && count($MSG) > 0) {
+                $msg = $MSG[count($MSG) - 1]['msg']; // get detail from message array
+            }
         }
 
         $log = "$now\t$date\t$type\t$from\t$to\t$ok\t$msg\n";
