@@ -215,6 +215,9 @@ class helper_plugin_move_op extends DokuWiki_Plugin {
                 $Rewriter->setMoveMeta($id, $src, $dst, 'pages');
             }
 
+            // Update breadcrumbs in session
+            $this->updateBreadcrumbs($src, $dst);
+
             unlock($src);
         }
         $event->advise_after();
@@ -319,5 +322,54 @@ class helper_plugin_move_op extends DokuWiki_Plugin {
      */
     public function getAffectedPages() {
         return $this->affectedPages;
+    }
+
+    /**
+     * Update breadcrumbs in the session if the moved page was in breadcrumbs
+     *
+     * @param string $src original ID
+     * @param string $dst new ID
+     */
+    public function updateBreadcrumbs($src, $dst) {
+        if (!defined('DOKU_COOKIE')) return;
+
+        $src = cleanID($src);
+        $dst = cleanID($dst);
+        if ($src === $dst) return;
+
+        $session_reopened = false;
+        if (!defined('NOSESSION') && session_id() !== '' && session_status() === PHP_SESSION_NONE) {
+            @session_start();
+            $session_reopened = true;
+        }
+
+        if (isset($_SESSION[DOKU_COOKIE]['bc']) && is_array($_SESSION[DOKU_COOKIE]['bc'])) {
+            $crumbs = $_SESSION[DOKU_COOKIE]['bc'];
+            if (isset($crumbs[$src])) {
+                $name = noNSorNS($dst);
+                if (useHeading('navigation')) {
+                    $title = p_get_first_heading($dst, METADATA_RENDER_USING_SIMPLE_CACHE);
+                    if ($title) {
+                        $name = $title;
+                    } elseif (isset($crumbs[$src])) {
+                        $name = $crumbs[$src];
+                    }
+                }
+
+                $new_crumbs = [];
+                foreach ($crumbs as $id => $title) {
+                    if ($id === $src) {
+                        $new_crumbs[$dst] = $name;
+                    } elseif ($id !== $dst) {
+                        $new_crumbs[$id] = $title;
+                    }
+                }
+                $_SESSION[DOKU_COOKIE]['bc'] = $new_crumbs;
+            }
+        }
+
+        if ($session_reopened) {
+            session_write_close();
+        }
     }
 }
