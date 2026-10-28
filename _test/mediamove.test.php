@@ -121,4 +121,32 @@ class plugin_move_mediamove_test extends DokuWikiTest {
 
         $this->assertEquals('{{wiki:foobar:test_image.png?200|test image}}', rawWiki('wiki:movetest'));
     }
+
+    /**
+     * @group slow
+     */
+    public function test_moveSingleMedia_interwikiFetchLink() {
+        global $AUTH_ACL;
+        $AUTH_ACL[] = "fusion:*\t@ALL\t16";
+
+        $filepath = DOKU_TMP_DATA . 'media/fusion/server/old_screencapture.png';
+        io_makeFileDir($filepath);
+        io_saveFile($filepath, 'dummy-image-bytes');
+
+        $initialText = '(exemplo: [[this>lib/exe/fetch.php?media=fusion:server:old_screencapture.png|24x7]])';
+        saveWikiText('wiki:interwikitest', $initialText, 'Test interwiki link setup');
+        idx_addPage('wiki:interwikitest');
+
+        $src = 'fusion:server:old_screencapture.png';
+        $dst = 'fusion:server:new_screencapture.png';
+
+        /** @var helper_plugin_move_op $move */
+        $move = plugin_load('helper', 'move_op');
+        $this->assertTrue($move->moveMedia($src, $dst));
+
+        $this->assertTrue(@file_exists(mediaFn($dst)));
+
+        $expectedText = '(exemplo: [[this>lib/exe/fetch.php?media=fusion:server:new_screencapture.png|24x7]])';
+        $this->assertEquals($expectedText, rawWiki('wiki:interwikitest'));
+    }
 }

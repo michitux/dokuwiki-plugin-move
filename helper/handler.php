@@ -313,7 +313,7 @@ class helper_plugin_move_handler extends Plugin {
 
         if(preg_match('/^[a-zA-Z0-9\.]+>{1}.*$/u', $link[0])) {
             // Interwiki
-            $this->wikitext .= $match;
+            $this->wikitext .= $this->rewrite_interwiki($match, $link[0]);
         } elseif(preg_match('/^\\\\\\\\[^\\\\]+?\\\\/u', $link[0])) {
             // Windows Share
             $this->wikitext .= $match;
@@ -400,6 +400,82 @@ class helper_plugin_move_handler extends Plugin {
                 $srcpos = strpos($match, $p['src']);
                 $srclen = strlen($p['src']);
                 return substr_replace($match, $new_src, $srcpos, $srclen);
+            }
+        }
+        return $match;
+    }
+
+    /**
+     * Rewrite an interwiki link if it targets the local wiki via this> (matching core metadata renderer)
+     *
+     * @param string $match     The original matched wikitext
+     * @param string $urlTarget The link target (without title)
+     * @return string The rewritten wikitext
+     */
+    public function rewrite_interwiki($match, $urlTarget) {
+        [$wiki, $url] = explode('>', $urlTarget, 2);
+        if (strtolower($wiki) !== 'this') {
+            return $match;
+        }
+
+        // 1. fetch.php / detail.php with query parameter ?media= (userewrite = 0 or general query)
+        if (preg_match('/(?:lib\/exe\/)?(?:fetch|detail)\.php\?[^#]*\bmedia=([^&#|]+)/i', $url, $m)) {
+            return $this->replaceUrlTarget($match, $m[1], 'media', 'media=');
+        }
+
+        // 2. fetch.php / detail.php with PATH_INFO (userewrite = 2)
+        if (preg_match('/(?:lib\/exe\/)?(?:fetch|detail)\.php\/([^?#|]+)/i', $url, $m)) {
+            return $this->replaceUrlTarget($match, $m[1], 'media');
+        }
+
+        // 3. _media / _detail clean URLs (userewrite = 1)
+        if (preg_match('/^_(?:media|detail)\/([^?#|]+)/i', $url, $m)) {
+            return $this->replaceUrlTarget($match, $m[1], 'media');
+        }
+
+        // 4. doku.php with query parameter ?id=
+        if (preg_match('/(?:lib\/exe\/)?doku\.php\?[^#]*\bid=([^&#|]+)/i', $url, $m)) {
+            return $this->replaceUrlTarget($match, $m[1], 'page', 'id=');
+        }
+
+        // 5. doku.php with PATH_INFO (userewrite = 2)
+        if (preg_match('/(?:lib\/exe\/)?doku\.php\/([^?#|]+)/i', $url, $m)) {
+            return $this->replaceUrlTarget($match, $m[1], 'page');
+        }
+
+        return $match;
+    }
+
+    /**
+     * Replace an ID target in the URL part of a link match (query parameter or path segment)
+     *
+     * @param string $match      The full link markup match
+     * @param string $raw_target The raw parameter value or path segment
+     * @param string $type       'media' or 'page'
+     * @param string $prefix     Optional query prefix, e.g. 'media=' or 'id='
+     * @return string
+     */
+    protected function replaceUrlTarget($match, $raw_target, $type, $prefix = '') {
+        $decoded = urldecode($raw_target);
+        $uses_slash = (strpos($decoded, '/') !== false && strpos($decoded, ':') === false);
+        $id_to_resolve = $uses_slash ? str_replace('/', ':', $decoded) : $decoded;
+        $has_leading_colon = ($id_to_resolve !== '' && $id_to_resolve[0] === ':');
+
+        $new_id = $this->resolveMoves($id_to_resolve, $type);
+        if ($new_id !== cleanID($id_to_resolve)) {
+            if ($has_leading_colon) $new_id = ':' . $new_id;
+            if ($uses_slash) $new_id = str_replace(':', '/', $new_id);
+
+            $new_raw = (stripos($raw_target, '%3a') !== false)
+                ? str_replace(':', '%3A', $new_id)
+                : $new_id;
+
+            $pipe_pos = strpos($match, '|');
+            $search_limit = ($pipe_pos !== false) ? $pipe_pos : strlen($match);
+            $url_part = substr($match, 0, $search_limit);
+            $pos = strpos($url_part, $prefix . $raw_target);
+            if ($pos !== false) {
+                return substr_replace($match, $new_raw, $pos + strlen($prefix), strlen($raw_target));
             }
         }
         return $match;

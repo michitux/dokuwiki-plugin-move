@@ -66,4 +66,72 @@ class plugin_move_handler_test extends DokuWikiTest {
         }
     }
 
+    public function test_rewriteInterwikiLink() {
+        $handler = new helper_plugin_move_handler();
+        $handler->init(
+            'test:page',
+            'test:page',
+            array(
+                array('used:to:be:this1', 'used:to:be:that1'),
+                array('old:page', 'new:page'),
+            ),
+            array(
+                array('foo:bar.png', 'baz:qux.png'),
+                array('fusion:server:old.png', 'fusion:server:new.png'),
+            ),
+            array()
+        );
+
+        $tests = array(
+            // Mode 0: query parameter (user case)
+            '[[this>lib/exe/fetch.php?media=fusion:server:old.png|24x7]]'
+                => '[[this>lib/exe/fetch.php?media=fusion:server:new.png|24x7]]',
+            // Mode 0: without label
+            '[[this>lib/exe/fetch.php?media=foo:bar.png]]'
+                => '[[this>lib/exe/fetch.php?media=baz:qux.png]]',
+            // Mode 0: with extra params before and after
+            '[[this>lib/exe/fetch.php?tok=123&media=foo:bar.png&w=400|title]]'
+                => '[[this>lib/exe/fetch.php?tok=123&media=baz:qux.png&w=400|title]]',
+            // Mode 0: detail.php
+            '[[this>lib/exe/detail.php?media=foo:bar.png|title]]'
+                => '[[this>lib/exe/detail.php?media=baz:qux.png|title]]',
+            // Mode 1: _media
+            '[[this>_media/foo:bar.png|title]]'
+                => '[[this>_media/baz:qux.png|title]]',
+            // Mode 1: _detail
+            '[[this>_detail/foo:bar.png|title]]'
+                => '[[this>_detail/baz:qux.png|title]]',
+            // Mode 1: slash separator
+            '[[this>_media/foo/bar.png|title]]'
+                => '[[this>_media/baz/qux.png|title]]',
+            // Mode 2: fetch.php PATH_INFO
+            '[[this>lib/exe/fetch.php/foo:bar.png|title]]'
+                => '[[this>lib/exe/fetch.php/baz:qux.png|title]]',
+            // Mode 2: fetch.php PATH_INFO with slashes
+            '[[this>lib/exe/fetch.php/foo/bar.png|title]]'
+                => '[[this>lib/exe/fetch.php/baz/qux.png|title]]',
+            // Page move: doku.php?id=
+            '[[this>doku.php?id=used:to:be:this1|title]]'
+                => '[[this>doku.php?id=used:to:be:that1|title]]',
+            // Page move: doku.php PATH_INFO (Mode 2)
+            '[[this>doku.php/used:to:be:this1|title]]'
+                => '[[this>doku.php/used:to:be:that1|title]]',
+            // URL-encoded colons
+            '[[this>lib/exe/fetch.php?media=foo%3Abar.png|title]]'
+                => '[[this>lib/exe/fetch.php?media=baz%3Aqux.png|title]]',
+            // External wiki (untouched)
+            '[[otherwiki>lib/exe/fetch.php?media=foo:bar.png|title]]'
+                => '[[otherwiki>lib/exe/fetch.php?media=foo:bar.png|title]]',
+            // Unrelated media (untouched)
+            '[[this>lib/exe/fetch.php?media=unrelated:file.png|title]]'
+                => '[[this>lib/exe/fetch.php?media=unrelated:file.png|title]]',
+        );
+
+        foreach($tests as $input => $expected) {
+            $handler->wikitext = '';
+            $handler->internallink($input, DOKU_LEXER_SPECIAL, 0);
+            $this->assertEquals($expected, $handler->wikitext);
+        }
+    }
+
 }
