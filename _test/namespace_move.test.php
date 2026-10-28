@@ -3,6 +3,8 @@
 // must be run within Dokuwiki
 if (!defined('DOKU_INC')) die();
 
+use dokuwiki\Search\Indexer;
+
 /**
  * Test cases for namespace move functionality of the move plugin
  *
@@ -42,8 +44,8 @@ class plugin_move_namespace_move_test extends DokuWikiTest {
 
         $AUTH_ACL[] = "wiki:*\t@ALL\t16";
 
-        idx_addPage('wiki:dokuwiki');
-        idx_addPage('wiki:syntax');
+        (new Indexer())->addPage('wiki:dokuwiki');
+        (new Indexer())->addPage('wiki:syntax');
 
         /** @var helper_plugin_move_plan $plan  */
         $plan = plugin_load('helper', 'move_plan');
@@ -75,7 +77,7 @@ class plugin_move_namespace_move_test extends DokuWikiTest {
      */
     public function test_move_missing() {
         saveWikiText('oldspace:page', '[[missing]]', 'setup');
-        idx_addPage('oldspace:page');
+        (new Indexer())->addPage('oldspace:page');
 
         /** @var helper_plugin_move_plan $plan  */
         $plan = plugin_load('helper', 'move_plan');
@@ -104,7 +106,7 @@ class plugin_move_namespace_move_test extends DokuWikiTest {
      */
     public function test_move_affected() {
         saveWikiText('oldaffectedspace:page', '[[missing]]', 'setup');
-        idx_addPage('oldaffectedspace:page');
+        (new Indexer())->addPage('oldaffectedspace:page');
         /** @var helper_plugin_move_plan $plan  */
         $plan = plugin_load('helper', 'move_plan');
 
@@ -137,47 +139,47 @@ class plugin_move_namespace_move_test extends DokuWikiTest {
 
 
         saveWikiText(':start', $test, $summary);
-        idx_addPage(':start');
+        (new Indexer())->addPage(':start');
         saveWikiText('testns:start', $test, $summary);
-        idx_addPage('testns:start');
+        (new Indexer())->addPage('testns:start');
         saveWikiText('testns:test_page1', $test, $summary);
-        idx_addPage('testns:test_page1');
+        (new Indexer())->addPage('testns:test_page1');
         saveWikiText('testns:test_page2', $test, $summary);
-        idx_addPage('testns:test_page2');
+        (new Indexer())->addPage('testns:test_page2');
         saveWikiText('testns:test_page3', $test, $summary);
-        idx_addPage('testns:test_page3');
+        (new Indexer())->addPage('testns:test_page3');
         saveWikiText('testns:test_page4', $test, $summary);
-        idx_addPage('testns:test_page4');
+        (new Indexer())->addPage('testns:test_page4');
         saveWikiText('testns:test_page5', $test, $summary);
-        idx_addPage('testns:test_page5');
+        (new Indexer())->addPage('testns:test_page5');
         saveWikiText('testns:test_page6', $test, $summary);
-        idx_addPage('testns:test_page6');
+        (new Indexer())->addPage('testns:test_page6');
         saveWikiText('testns:test_page7', $test, $summary);
-        idx_addPage('testns:test_page7');
+        (new Indexer())->addPage('testns:test_page7');
         saveWikiText('testns:test_page8', $test, $summary);
-        idx_addPage('testns:test_page8');
+        (new Indexer())->addPage('testns:test_page8');
         saveWikiText('testns:test_page9', $test, $summary);
-        idx_addPage('testns:test_page9');
+        (new Indexer())->addPage('testns:test_page9');
         saveWikiText('testns:test_page10', $test, $summary);
-        idx_addPage('testns:test_page10');
+        (new Indexer())->addPage('testns:test_page10');
         saveWikiText('testns:test_page11', $test, $summary);
-        idx_addPage('testns:test_page11');
+        (new Indexer())->addPage('testns:test_page11');
         saveWikiText('testns:test_page12', $test, $summary);
-        idx_addPage('testns:test_page12');
+        (new Indexer())->addPage('testns:test_page12');
         saveWikiText('testns:test_page13', $test, $summary);
-        idx_addPage('testns:test_page13');
+        (new Indexer())->addPage('testns:test_page13');
         saveWikiText('testns:test_page14', $test, $summary);
-        idx_addPage('testns:test_page14');
+        (new Indexer())->addPage('testns:test_page14');
         saveWikiText('testns:test_page15', $test, $summary);
-        idx_addPage('testns:test_page15');
+        (new Indexer())->addPage('testns:test_page15');
         saveWikiText('testns:test_page16', $test, $summary);
-        idx_addPage('testns:test_page16');
+        (new Indexer())->addPage('testns:test_page16');
         saveWikiText('testns:test_page17', $test, $summary);
-        idx_addPage('testns:test_page17');
+        (new Indexer())->addPage('testns:test_page17');
         saveWikiText('testns:test_page18', $test, $summary);
-        idx_addPage('testns:test_page18');
+        (new Indexer())->addPage('testns:test_page18');
         saveWikiText('testns:test_page19', $test, $summary);
-        idx_addPage('testns:test_page19');
+        (new Indexer())->addPage('testns:test_page19');
 
         $conf['plugin']['move']['autorewrite'] = 0;
 
@@ -235,11 +237,11 @@ class plugin_move_namespace_move_test extends DokuWikiTest {
         $AUTH_ACL[] = "newns:*\t@ALL\t16";
 
         saveWikiText('start', '[[oldns:start]] [[oldns:page]] [[oldns:missing]]', 'setup');
-        idx_addPage('start');
+        (new Indexer())->addPage('start');
         saveWikiText('oldns:start', '[[oldns:start]] [[oldns:page]] [[oldns:missing]] [[missing]] [[page]]', 'setup');
-        idx_addPage('oldns:start');
+        (new Indexer())->addPage('oldns:start');
         saveWikiText('oldns:page', '[[oldns:start]] [[oldns:page]] [[oldns:missing]] [[missing]] [[start]]', 'setup');
-        idx_addPage('oldns:page');
+        (new Indexer())->addPage('oldns:page');
 
 
         /** @var helper_plugin_move_plan $plan  */
@@ -283,7 +285,7 @@ class plugin_move_namespace_move_test extends DokuWikiTest {
         io_makeFileDir($filepath);
         io_saveFile($filepath,'');
         saveWikiText('start', '{{oldns:oldnsimage.png}} {{oldns:oldnsimage_missing.png}} {{image_missing.png}}', 'setup');
-        idx_addPage('start');
+        (new Indexer())->addPage('start');
 
         /** @var helper_plugin_move_plan $plan  */
         $plan = plugin_load('helper', 'move_plan');
@@ -321,7 +323,7 @@ class plugin_move_namespace_move_test extends DokuWikiTest {
         io_makeFileDir($filepath);
         io_saveFile($filepath,'');
         saveWikiText('oldns:start', '{{:oldns:oldnsimage.png}} {{oldns:oldnsimage_missing.png}} {{oldnsimage_missing.png}} {{oldnsimage.png}}', 'setup');
-        idx_addPage('oldns:start');
+        (new Indexer())->addPage('oldns:start');
 
         /** @var helper_plugin_move_plan $plan  */
         $plan = plugin_load('helper', 'move_plan');
@@ -359,11 +361,11 @@ class plugin_move_namespace_move_test extends DokuWikiTest {
         io_makeFileDir($filepath);
         io_saveFile($filepath,'');
         saveWikiText('start', "[[oldns:start]] [[oldns:page]] [[oldns:missing]]\n{{oldns:oldnsimage.png}} {{oldns:oldnsimage_missing.png}} {{oldnsimage_missing.png}}", 'setup');
-        idx_addPage('start');
+        (new Indexer())->addPage('start');
         saveWikiText('oldns:start', '[[oldns:start]] [[oldns:page]] [[oldns:missing]] [[missing]] [[page]]', 'setup');
-        idx_addPage('oldns:start');
+        (new Indexer())->addPage('oldns:start');
         saveWikiText('oldns:page', '[[oldns:start]] [[oldns:page]] [[oldns:missing]] [[missing]] [[start]]', 'setup');
-        idx_addPage('oldns:page');
+        (new Indexer())->addPage('oldns:page');
 
         /** @var helper_plugin_move_plan $plan  */
         $plan = plugin_load('helper', 'move_plan');
@@ -402,7 +404,7 @@ class plugin_move_namespace_move_test extends DokuWikiTest {
         $AUTH_ACL[] = "newns:*\t@ALL\t16";
 
         saveWikiText('subns:start', 'Lorem Ipsum', 'setup');
-        idx_addPage('subns:start');
+        (new Indexer())->addPage('subns:start');
 
         $oldfilepath = DOKU_TMP_DATA.'meta/subns/.mlist';
         $subscription = 'doe every 1427984341';
@@ -445,7 +447,7 @@ class plugin_move_namespace_move_test extends DokuWikiTest {
         $AUTH_ACL[] = "newns:*\t@ALL\t16";
 
         saveWikiText('subns:start', 'Lorem Ipsum', 'setup');
-        idx_addPage('subns:start');
+        (new Indexer())->addPage('subns:start');
 
         $oldfilepath = DOKU_TMP_DATA.'meta/subns/start.mlist';
         $subscription = 'doe every 1427984341';

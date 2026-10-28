@@ -255,10 +255,9 @@ class helper_plugin_move_rewrite extends Plugin {
         $Handler = new helper_plugin_move_handler();
         $Handler->init($id, $origin, $pages, $media, $handlers);
 
-        // Use reflectiion to actually use our own handler (see docs at MoveHandler)
+        // Use reflection to actually use our own handler (see docs at MoveHandler)
         $reflectParser = new ReflectionClass(Parser::class);
         $handlerProperty = $reflectParser->getProperty('handler');
-        $handlerProperty->setAccessible(true);
         $handlerProperty->setValue($Parser, $Handler);
 
 

@@ -10,6 +10,7 @@ use dokuwiki\Extension\Plugin;
 use dokuwiki\File\MediaResolver;
 use dokuwiki\File\PageResolver;
 use dokuwiki\Logger;
+use dokuwiki\Parsing\ParserMode\Media;
 use dokuwiki\plugin\move\MoveResolver;
 
 /**
@@ -389,7 +390,7 @@ class helper_plugin_move_handler extends Plugin {
      * @return string The rewritten syntax
      */
     protected function rewrite_media($match) {
-        $p = Doku_Handler_Parse_Media($match);
+        $p = Media::parseMedia($match);
         if($p['type'] == 'internalmedia') { // else: external media
 
             $new_src = $this->resolveMoves($p['src'], 'media');

@@ -1,5 +1,7 @@
 <?php
 
+use dokuwiki\Search\Indexer;
+
 
 class helper_plugin_move_plan_findMissingDocuments_mock extends helper_plugin_move_plan {
 
@@ -62,7 +64,7 @@ class plugin_move_findMissingPages_test extends DokuWikiTest {
 
     function test_findMissingPages_missingPage_default () {
         saveWikiText('start','[[oldns:missing]]','test edit');
-        idx_addPage('start');
+        (new Indexer())->addPage('start');
         $this->plan->findMissingDocuments('oldns:','newns:');
         $tmpstore = $this->plan->getTmpstore();
         $this->assertSame(array('oldns:missing' => 'newns:missing',),$tmpstore['miss']);
@@ -70,7 +72,7 @@ class plugin_move_findMissingPages_test extends DokuWikiTest {
 
     function test_findMissingPages_missingPage_explicit () {
         saveWikiText('start','[[oldns:missing]]','test edit');
-        idx_addPage('start');
+        (new Indexer())->addPage('start');
         $this->plan->findMissingDocuments('oldns:','newns:',helper_plugin_move_plan::TYPE_PAGES);
         $tmpstore = $this->plan->getTmpstore();
         $this->assertSame(array('oldns:missing' => 'newns:missing',),$tmpstore['miss']);
@@ -78,7 +80,7 @@ class plugin_move_findMissingPages_test extends DokuWikiTest {
 
     function test_findMissingPages_missingPage_integrated () {
         saveWikiText('oldns:start','[[oldns:missing]] {{oldns:missing.png}}','test edit');
-        idx_addPage('oldns:start');
+        (new Indexer())->addPage('oldns:start');
         $this->plan->addPageNamespaceMove('oldns', 'newns');
         $this->plan->addMediaNamespaceMove('oldns', 'newns');
 
@@ -94,7 +96,7 @@ class plugin_move_findMissingPages_test extends DokuWikiTest {
 
     function test_findMissingPages_missingMedia () {
         saveWikiText('start','{{oldns:missing.png}}','test edit');
-        idx_addPage('start');
+        (new Indexer())->addPage('start');
         $this->plan->findMissingDocuments('oldns:','newns:',helper_plugin_move_plan::TYPE_MEDIA);
         $tmpstore = $this->plan->getTmpstore();
         $this->assertSame(array('oldns:missing.png' => 'newns:missing.png',),$tmpstore['miss_media']);
@@ -105,7 +107,7 @@ class plugin_move_findMissingPages_test extends DokuWikiTest {
         io_makeFileDir($filepath);
         io_saveFile($filepath,'');
         saveWikiText('start','{{oldns:oldnsimage.png}}','test edit');
-        idx_addPage('start');
+        (new Indexer())->addPage('start');
         $this->plan->findMissingDocuments('oldns:','newns:',helper_plugin_move_plan::TYPE_MEDIA);
         $tmpstore = $this->plan->getTmpstore();
         $this->assertSame(array(),$tmpstore['miss_media']);

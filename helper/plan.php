@@ -9,6 +9,8 @@
 // must be run within Dokuwiki
 if(!defined('DOKU_INC')) die();
 
+use dokuwiki\Search\MetadataSearch;
+
 /**
  * Class helper_plugin_move_plan
  *
@@ -726,17 +728,16 @@ class helper_plugin_move_plan extends DokuWiki_Plugin {
      * @param int    $type
      */
     protected function findAffectedPages($src, $dst, $class, $type) {
-        $idx = idx_get_indexer();
-
         if($class == self::CLASS_NS) {
             $src_ = "$src:*"; // use wildcard lookup for namespaces
         } else {
             $src_ = $src;
         }
 
+        $search = new MetadataSearch();
         $pages = array();
         if($type == self::TYPE_PAGES) {
-            $pages = $idx->lookupKey('relation_references', $src_);
+            $pages = $search->lookupKey('relation_references', $src_);
             $len = strlen($src);
             foreach($pages as &$page) {
                 if (substr($page, 0, $len + 1) === "$src:") {
@@ -745,7 +746,7 @@ class helper_plugin_move_plan extends DokuWiki_Plugin {
             }
             unset($page);
         } else if($type == self::TYPE_MEDIA) {
-            $pages = $idx->lookupKey('relation_media', $src_);
+            $pages = $search->lookupKey('relation_media', $src_);
         }
 
         $this->addToAffectedPagesList($pages);

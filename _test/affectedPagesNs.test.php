@@ -1,5 +1,6 @@
 <?php
 
+use dokuwiki\Search\Indexer;
 
 /**
  * Test cases for the move plugin
@@ -38,7 +39,7 @@ class plugin_move_affectedPagesNS_test extends DokuWikiTest {
     public function test_affectedPagesNS_Media() {
 
         saveWikiText('oldns:start', '{{oldnsimage_missing.png}}', 'setup');
-        idx_addPage('oldns:start');
+        (new Indexer())->addPage('oldns:start');
 
         /** @var helper_plugin_move_plan $plan */
         $plan = plugin_load('helper','move_plan');

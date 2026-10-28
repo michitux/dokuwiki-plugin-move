@@ -3,6 +3,8 @@
 // must be run within Dokuwiki
 if (!defined('DOKU_INC')) die();
 
+use dokuwiki\Search\Indexer;
+
 /**
  * Test cases for the move plugin
  *
@@ -20,6 +22,13 @@ class plugin_move_pagemove_test  extends DokuWikiTest {
 
     // @todo Move page to an ID which already exists
     // @todo Check backlinks of a sub-namespace page (moving same, up, down, different)
+
+    protected function indexReferences(string $id, array $references): void {
+        (new \dokuwiki\Search\Collection\PageMetaCollection('relation_references'))
+            ->lock()
+            ->addEntity($id, $references)
+            ->unlock();
+    }
 
     function setUp(): void {
         parent::setUpBeforeClass();
@@ -49,7 +58,7 @@ EOT;
         $INFO = pageinfo();
 
         $references = array_keys(p_get_metadata($this->movedId, 'relation references', METADATA_RENDER_UNLIMITED));
-        idx_get_indexer()->addMetaKeys($this->movedId, 'relation_references', $references);
+        $this->indexReferences($this->movedId, $references);
 
         $text = <<<EOT
 [[$this->movedId|$this->movedId]]
@@ -77,7 +86,7 @@ EOT;
 EOT;
         saveWikiText($this->parentBacklinkingId, $text, $summary);
         $references = array_keys(p_get_metadata($this->parentBacklinkingId, 'relation references', METADATA_RENDER_UNLIMITED));
-        idx_get_indexer()->addMetaKeys($this->parentBacklinkingId, 'relation_references', $references);
+        $this->indexReferences($this->parentBacklinkingId, $references);
 
         $text = <<<EOT
 [[$this->movedId|$this->movedId]]
@@ -109,7 +118,7 @@ EOT;
 EOT;
         saveWikiText($this->currentNsBacklinkingId, $text, $summary);
         $references = array_keys(p_get_metadata($this->currentNsBacklinkingId, 'relation references', METADATA_RENDER_UNLIMITED));
-        idx_get_indexer()->addMetaKeys($this->currentNsBacklinkingId, 'relation_references', $references);
+        $this->indexReferences($this->currentNsBacklinkingId, $references);
 
         $text = <<<EOT
 [[$this->movedId|$this->movedId]]
@@ -136,7 +145,7 @@ EOT;
 EOT;
         saveWikiText($this->otherBacklinkingId, $text, $summary);
         $references = array_keys(p_get_metadata($this->otherBacklinkingId, 'relation references', METADATA_RENDER_UNLIMITED));
-        idx_get_indexer()->addMetaKeys($this->otherBacklinkingId, 'relation_references', $references);
+        $this->indexReferences($this->otherBacklinkingId, $references);
 
         $text = <<<EOT
 [[$this->movedId|$this->movedId]]
@@ -167,7 +176,7 @@ EOT;
 EOT;
         saveWikiText($this->subNsPage, $text, $summary);
         $references = array_keys(p_get_metadata($this->subNsPage, 'relation references', METADATA_RENDER_UNLIMITED));
-        idx_get_indexer()->addMetaKeys($this->subNsPage, 'relation_references', $references);
+        $this->indexReferences($this->subNsPage, $references);
 
         parent::setUp();
 
@@ -534,10 +543,10 @@ EOT;
     function test_move_startpage_of_ns() {
         saveWikiText('wiki:bar:test',
                      '[[wiki:foo:]]', 'Test setup');
-        idx_addPage('wiki:bar:test');
+        (new Indexer())->addPage('wiki:bar:test');
         saveWikiText('wiki:foo:start',
                      'bar', 'Test setup');
-        idx_addPage('wiki:foo:start');
+        (new Indexer())->addPage('wiki:foo:start');
 
         /** @var helper_plugin_move_op $move */
         $move = plugin_load('helper', 'move_op');
@@ -554,7 +563,7 @@ EOT;
      */
     function test_move_no_long_rel_links_keep_colon() {
         saveWikiText('wiki:foo:start', '[[..:..:one_ns_up:]]', 'Test setup');
-        idx_addPage('wiki:foo:start');
+        (new Indexer())->addPage('wiki:foo:start');
 
         /** @var helper_plugin_move_op $move */
         $move = plugin_load('helper', 'move_op');
@@ -570,9 +579,9 @@ EOT;
      */
     function test_move_to_thisns_start(){
         saveWikiText('wiki:foo:test_page', '[[..:..:bar:]]', 'Test setup');
-        idx_addPage('wiki:foo:test_page');
+        (new Indexer())->addPage('wiki:foo:test_page');
         saveWikiText('bar:start', 'foo', 'Test setup');
-        idx_addPage('bar:start');
+        (new Indexer())->addPage('bar:start');
 
         /** @var helper_plugin_move_op $move */
         $move = plugin_load('helper', 'move_op');
@@ -599,9 +608,9 @@ EOT;
 
     function test_move_start_ns_into_ns_page() {
         saveWikiText('bugs:start', 'Bug page', 'created');
-        idx_addPage('bugs:start');
+        (new Indexer())->addPage('bugs:start');
         saveWikiText('foo:bugs:test', '[[bugs:start]]', 'created');
-        idx_addPage('foo:bugs:test');
+        (new Indexer())->addPage('foo:bugs:test');
 
         /** @var helper_plugin_move_op $move */
         $move = plugin_load('helper', 'move_op');
@@ -615,9 +624,9 @@ EOT;
 
     function test_clean_id_move() {
         saveWikiText('some_space:start', 'Space page', 'created');
-        idx_addPage('some_space:start');
+        (new Indexer())->addPage('some_space:start');
         saveWikiText('foo:bar:test', '[[some space:start]]', 'created');
-        idx_addPage('foo:bar:test');
+        (new Indexer())->addPage('foo:bar:test');
 
         /** @var helper_plugin_move_op $move */
         $move = plugin_load('helper', 'move_op');

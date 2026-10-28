@@ -3,6 +3,7 @@
 namespace dokuwiki\plugin\move\test;
 
 use DokuWikiTest;
+use dokuwiki\MailUtils;
 
 /**
  * General tests for the move plugin
@@ -32,7 +33,7 @@ class GeneralTest extends DokuWikiTest
 
         $this->assertEquals('move', $info['base']);
         $this->assertMatchesRegularExpression('/^https?:\/\//', $info['url']);
-        $this->assertTrue(mail_isvalid($info['email']));
+        $this->assertTrue(MailUtils::isValid($info['email']));
         $this->assertMatchesRegularExpression('/^\d\d\d\d-\d\d-\d\d$/', $info['date']);
         $this->assertTrue(false !== strtotime($info['date']));
     }

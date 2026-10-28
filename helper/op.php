@@ -10,6 +10,12 @@
 // must be run within Dokuwiki
 if(!defined('DOKU_INC')) die();
 
+use dokuwiki\Search\Collection\PageMetaCollection;
+use dokuwiki\Search\Exception\SearchException;
+use dokuwiki\Search\Index\TupleOps;
+use dokuwiki\Search\Indexer;
+use dokuwiki\Search\MetadataSearch;
+
 class helper_plugin_move_op extends DokuWiki_Plugin {
 
     /**
@@ -135,7 +141,7 @@ class helper_plugin_move_op extends DokuWiki_Plugin {
         $Rewriter->setSelfMoveMeta($src);
 
         // ft_backlinks() is not used here, as it does a hidden page and acl check but we really need all pages
-        $affected_pages = idx_get_indexer()->lookupKey('relation_references', $src);
+        $affected_pages = (new MetadataSearch())->lookupKey('relation_references', $src);
         $affected_pages[] = $dst; // the current page is always affected, because all relative links may have changed
         $affected_pages = array_unique($affected_pages);
 
@@ -169,10 +175,13 @@ class helper_plugin_move_op extends DokuWiki_Plugin {
             $FileMover = plugin_load('helper', 'move_file');
 
             // Move the Subscriptions & Indexes (new feature since Spring 2013 release)
-            $Indexer = idx_get_indexer();
-            if(($idx_msg = $Indexer->renamePage($src, $dst)) !== true
-                || ($idx_msg = $Indexer->renameMetaValue('relation_references', $src, $dst)) !== true
-            ) {
+            try {
+                (new Indexer())->renamePage($src, $dst);
+            } catch(SearchException $e) {
+                msg(sprintf($this->getLang('indexerror'), $e->getMessage()), -1);
+                return false;
+            }
+            if(($idx_msg = $this->renameMetaValue('relation_references', $src, $dst)) !== true) {
                 msg(sprintf($this->getLang('indexerror'), $idx_msg), -1);
                 return false;
             }
@@ -239,7 +248,7 @@ class helper_plugin_move_op extends DokuWiki_Plugin {
         if(!$this->checkMedia($src, $dst)) return false;
 
         // get all pages using this media
-        $affected_pages = idx_get_indexer()->lookupKey('relation_media', $src);
+        $affected_pages = (new MetadataSearch())->lookupKey('relation_media', $src);
 
         $src_ns   = getNS($src);
         $src_name = noNS($src);
@@ -271,8 +280,7 @@ class helper_plugin_move_op extends DokuWiki_Plugin {
             $Rewriter = plugin_load('helper', 'move_rewrite');
 
             // Move the Subscriptions & Indexes (new feature since Spring 2013 release)
-            $Indexer = idx_get_indexer();
-            if(($idx_msg = $Indexer->renameMetaValue('relation_media', $src, $dst)) !== true) {
+            if(($idx_msg = $this->renameMetaValue('relation_media', $src, $dst)) !== true) {
                 msg(sprintf($this->getLang('indexerror'), $idx_msg), -1);
                 return false;
             }
@@ -319,5 +327,73 @@ class helper_plugin_move_op extends DokuWiki_Plugin {
      */
     public function getAffectedPages() {
         return $this->affectedPages;
+    }
+
+    /**
+     * Rename a metadata value in the index
+     *
+     * @param string $key metadata key name
+     * @param string $oldvalue old value
+     * @param string $newvalue new value
+     * @return bool|string true on success, error message on failure
+     */
+    public function renameMetaValue($key, $oldvalue, $newvalue) {
+        $collection = new PageMetaCollection($key);
+        try {
+            $collection->lock();
+
+            $tokenIndex = $collection->getTokenIndex();
+
+            // find old value — search() is read-only, won't create entries
+            $matches = $tokenIndex->search('/^' . preg_quote($oldvalue, '/') . '$/');
+            if($matches === []) {
+                $collection->unlock();
+                return true;
+            }
+            $oldid = array_key_first($matches);
+
+            // check if new value already exists (read-only lookup)
+            $newMatches = $tokenIndex->search('/^' . preg_quote($newvalue, '/') . '$/');
+
+            if($newMatches !== []) {
+                // both values exist — merge frequency data from old to new
+                $newid = array_key_first($newMatches);
+                $freqIndex = $collection->getFrequencyIndex();
+                $reverseIndex = $collection->getReverseIndex();
+                $oldFreqLine = $freqIndex->retrieveRow($oldid);
+
+                if($oldFreqLine !== '') {
+                    $newFreqLine = $freqIndex->retrieveRow($newid);
+                    foreach(TupleOps::parseTuples($oldFreqLine) as $entityId => $count) {
+                        $newFreqLine = TupleOps::updateTuple($newFreqLine, $entityId, $count);
+
+                        // update reverse index: remove old token, add new
+                        $reverseRow = $reverseIndex->retrieveRow((int)$entityId);
+                        $keyline = explode(':', $reverseRow);
+                        $keyline = array_diff($keyline, array((string)$oldid));
+                        if(!in_array((string)$newid, $keyline)) {
+                            $keyline[] = $newid;
+                        }
+                        $reverseIndex->changeRow(
+                            (int)$entityId,
+                            implode(':', array_filter($keyline, static function($v) {
+                                return $v !== '';
+                            }))
+                        );
+                    }
+                    $freqIndex->changeRow($oldid, '');
+                    $freqIndex->changeRow($newid, $newFreqLine);
+                }
+            } else {
+                // new value doesn't exist — simple rename
+                $tokenIndex->changeRow($oldid, $newvalue);
+            }
+
+            $collection->unlock();
+            return true;
+        } catch(SearchException $e) {
+            $collection->unlock();
+            return $e->getMessage();
+        }
     }
 }

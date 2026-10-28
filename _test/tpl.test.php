@@ -1,5 +1,7 @@
 <?php
 
+use dokuwiki\Search\Indexer;
+
 /**
  * tests for the template button of the move plugin
  *
@@ -21,7 +23,7 @@ class move_tpl_test extends DokuWikiTest {
      *//*
     function test_tpl () {
         saveWikiText('wiki:foo:start', '[[..:..:one_ns_up:]]', 'Test setup');
-        idx_addPage('wiki:foo:start');
+        (new Indexer())->addPage('wiki:foo:start');
 
         $request = new TestRequest();
         $response = $request->get(array(),'/doku.php?id=wiki:foo:start');
@@ -40,7 +42,7 @@ class move_tpl_test extends DokuWikiTest {
         $USERINFO['grps'] = array('admin','user');
 
         saveWikiText('wiki:foo:start', '[[..:..:one_ns_up:]]', 'Test setup');
-        idx_addPage('wiki:foo:start');
+        (new Indexer())->addPage('wiki:foo:start');
 
         $move_rename = new action_plugin_move_rename();
         $this->assertTrue($move_rename->renameOkay('wiki:foo:start'));
