@@ -1,6 +1,6 @@
 <?php
 
-$conf['allowrename'] = '@user';
+$conf['allowrename'] = '@admin,@user';
 $conf['minor'] = 1;
 $conf['dual'] = 1;
 $conf['autoskip'] = 0;
