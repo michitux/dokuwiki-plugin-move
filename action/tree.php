@@ -36,7 +36,7 @@ class action_plugin_move_tree extends DokuWiki_Action_Plugin {
         global $INPUT;
         global $USERINFO;
 
-        if(!auth_ismanager($_SERVER['REMOTE_USER'], $USERINFO['grps'])) {
+        if(!auth_ismanager($_SERVER['REMOTE_USER'], $USERINFO['grps'] ?? [])) {
             http_status(403);
             exit;
         }

@@ -49,6 +49,7 @@ class action_plugin_move_rename extends DokuWiki_Action_Plugin {
             $INPUT->server->str('REMOTE_USER'),
             $USERINFO['grps'] ?? []
         );
+        $JSINFO['move_sectok'] = getSecurityToken();
     }
 
     /**
@@ -108,11 +109,17 @@ class action_plugin_move_rename extends DokuWiki_Action_Plugin {
         global $MSG;
         global $INPUT;
 
+        header('Content-Type: application/json');
+
+        // a move changes pages, so it must not be triggered from another site
+        if($INPUT->server->str('REQUEST_METHOD') !== 'POST' || !checkSecurityToken()) {
+            echo json_encode(['error' => $this->getLang('cantrename')]);
+            return;
+        }
+
         $src = cleanID($INPUT->str('id'));
         $dst = cleanID($INPUT->str('newid'));
         $doMedia = $INPUT->bool('media');
-
-        header('Content-Type: application/json');
 
         if(!$this->renameOkay($src)) {
             echo json_encode(['error' => $this->getLang('cantrename')]);
@@ -163,7 +170,7 @@ class action_plugin_move_rename extends DokuWiki_Action_Plugin {
         } catch (\Exception $e) {
             // error should be in $MSG
             if(isset($MSG[0])) {
-                $error = $MSG[0]; // first error
+                $error = $MSG[0]['msg']; // first error
             } else {
                 $error = $this->getLang('cantrename') . ' ' . $e->getMessage();
             }
@@ -205,7 +212,7 @@ class action_plugin_move_rename extends DokuWiki_Action_Plugin {
 
             // check user/group restrictions
             if (
-                !auth_isMember($this->getConf('allowrename'), $INPUT->server->str('REMOTE_USER'), (array) $USERINFO['grps'])
+                !auth_isMember($this->getConf('allowrename'), $INPUT->server->str('REMOTE_USER'), (array) ($USERINFO['grps'] ?? []))
             ) {
                 $response['error'] = $this->getLang('notallowed');
                 echo json_encode($response);
@@ -246,7 +253,7 @@ class action_plugin_move_rename extends DokuWiki_Action_Plugin {
         if(checklock($id) !== false || @file_exists(wikiLockFN($id))) return false;
         if(!$conf['useacl']) return true;
         if(!isset($_SERVER['REMOTE_USER'])) return false;
-        if(!auth_isMember($this->getConf('allowrename'), $_SERVER['REMOTE_USER'], (array) $USERINFO['grps'])) return false;
+        if(!auth_isMember($this->getConf('allowrename'), $_SERVER['REMOTE_USER'], (array) ($USERINFO['grps'] ?? []))) return false;
 
         return true;
     }

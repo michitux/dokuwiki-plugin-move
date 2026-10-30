@@ -57,6 +57,9 @@ class admin_plugin_move_main extends DokuWiki_Admin_Plugin {
     function handle() {
         global $INPUT;
 
+        // starting, continuing or aborting a move changes pages, which needs the form's token
+        if(($INPUT->has('dst') || $INPUT->has('json') || $INPUT->has('ctl')) && !checkSecurityToken()) return;
+
         // create a new plan if possible and sufficient data was given
         $this->createPlanFromInput();
 

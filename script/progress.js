@@ -44,14 +44,15 @@ jQuery('#plugin_move__progress').each(function () {
             DOKU_BASE + 'lib/exe/ajax.php',
             {
                 call: 'plugin_move_progress',
-                skip: skip
+                skip: skip,
+                sectok: JSINFO.move_sectok
             },
             function (data) {
                 $progressbar.progressbar('option', 'value', data.progress);
                 $this.find('.controls img').addClass('hide');
 
                 if (data.error) {
-                    $this.find('.output').html('<p><div class="error">' + data.error + '</div></p>');
+                    $this.find('.output').empty().append(jQuery('<div class="error">').text(data.error));
                     setButtons(true);
                 } else if (data.complete) {
                     $progressbar.progressbar('option', 'value', 100);
