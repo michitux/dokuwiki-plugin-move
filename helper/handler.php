@@ -35,6 +35,15 @@ use dokuwiki\plugin\move\MoveResolver;
  * @todo At least do the right thing an make this a proper Doku_Handler descendant even when we keep the wikitext
  */
 class helper_plugin_move_handler extends Plugin {
+    /**
+     * Markdown modes that match a whole block at once and parse its content with a sub-parser,
+     * with the line prefix (quote marker, list marker and indentation) that their content starts after
+     */
+    const GFM_BLOCKS = [
+        'gfm_listblock' => '/^[ \t]*(?:(?:[-*+]|\d{1,9}[.)])(?:[ \t]+|$))?/',
+        'gfm_quote'     => '/^(?:[ \t]{0,3}>[ \t]?)*/',
+    ];
+
     public $calls = [];
 
     /**
@@ -95,8 +104,14 @@ class helper_plugin_move_handler extends Plugin {
         }
 
         // the modes we actually rewrite have a method of the same name
-        if($modeName === 'internallink' || $modeName === 'media' || $modeName === 'camelcaselink') {
+        if(in_array($modeName, ['internallink', 'media', 'camelcaselink', 'gfm_link', 'gfm_media'], true)) {
             return $this->$modeName($match, $state, $pos);
+        }
+
+        // Markdown lists and quotes come as one token, their content is parsed separately
+        if(isset(self::GFM_BLOCKS[$modeName])) {
+            $this->wikitext .= $this->rewrite_gfm_block($match, self::GFM_BLOCKS[$modeName]);
+            return true;
         }
 
         // everything else is kept verbatim (what __call() does under the legacy dispatch)
@@ -327,36 +342,11 @@ class helper_plugin_move_handler extends Plugin {
             // local hash link
             $this->wikitext .= $match;
         } else {
-            $id = $link[0];
+            $new_id = $this->rewritePageTarget($link[0]);
 
-            $hash  = '';
-            $parts = explode('#', $id, 2);
-            if(count($parts) === 2) {
-                $id   = $parts[0];
-                $hash = $parts[1];
-            }
-
-            $params = '';
-            $parts  = explode('?', $id, 2);
-            if(count($parts) === 2) {
-                $id     = $parts[0];
-                $params = $parts[1];
-            }
-
-            $new_id = $this->resolveMoves($id, 'page');
-            $new_id = $this->relativeLink($id, $new_id, 'page');
-
-            if($id == $new_id) {
+            if($new_id === $link[0]) {
                 $this->wikitext .= $match;
             } else {
-                if($params !== '') {
-                    $new_id .= '?' . $params;
-                }
-
-                if($hash !== '') {
-                    $new_id .= '#' . $hash;
-                }
-
                 if($link[1] != null) {
                     $new_id .= '|' . $link[1];
                 }
@@ -367,6 +357,157 @@ class helper_plugin_move_handler extends Plugin {
         }
 
         return true;
+    }
+
+    /**
+     * Rewrite the target of a link to a page
+     *
+     * @param string $target The page ID as written in the link, with optional ?params and #hash
+     * @return string The new target, or $target itself if the link still points to the right page
+     */
+    protected function rewritePageTarget($target) {
+        $id = $target;
+
+        $hash  = '';
+        $parts = explode('#', $id, 2);
+        if(count($parts) === 2) {
+            $id   = $parts[0];
+            $hash = $parts[1];
+        }
+
+        $params = '';
+        $parts  = explode('?', $id, 2);
+        if(count($parts) === 2) {
+            $id     = $parts[0];
+            $params = $parts[1];
+        }
+
+        $new_id = $this->resolveMoves($id, 'page');
+        $new_id = $this->relativeLink($id, $new_id, 'page');
+
+        if($id == $new_id) return $target;
+
+        if($params !== '') {
+            $new_id .= '?' . $params;
+        }
+
+        if($hash !== '') {
+            $new_id .= '#' . $hash;
+        }
+
+        return $new_id;
+    }
+
+    /**
+     * Handle rewriting of Markdown links, [label](target "title")
+     *
+     * Only the target is replaced, so the label, title and spacing stay as written.
+     * The label can also be an image, [![alt](image)](target), whose source is rewritten, too.
+     *
+     * @param string $match The text match
+     * @param string $state The starte of the parser
+     * @param int    $pos   The position in the input
+     * @return bool If parsing should be continued
+     */
+    public function gfm_link($match, $state, $pos) {
+        if(preg_match('/^\[(!\[[^\[\]\n]*\]\([^)\n]+\))\]\(/', $match, $m)) {
+            // image as label: the target starts after the image
+            $image = $m[1];
+            $start = strlen($m[0]);
+        } else {
+            // a plain label can't contain an unescaped ], so the first ]( ends it
+            $image = null;
+            $start = strpos($match, '](') + 2;
+        }
+
+        // the target is the first word inside the parentheses, an optional title follows
+        $start += strspn($match, " \t\n", $start);
+        $target = substr($match, $start, strcspn(substr($match, $start, -1), " \t\n"));
+
+        if($target !== '' && \dokuwiki\Parsing\Helpers\Link::classify($target, null)[0] === 'internallink') {
+            $new = $this->rewritePageTarget($target);
+            if($new !== $target) {
+                $match = substr_replace($match, $new, $start, strlen($target));
+            }
+        }
+
+        if($image !== null) {
+            $match = substr_replace($match, $this->rewrite_gfm_media($image), 1, strlen($image));
+        }
+
+        $this->wikitext .= $match;
+        return true;
+    }
+
+    /**
+     * Rewrite a Markdown list or quote
+     *
+     * The prefix of each line is cut off and the rest is parsed as a text of its own, so the links
+     * inside reach this handler one by one and code blocks are still recognized. Then the prefixes
+     * are put back.
+     *
+     * @param string $match  The text match of the block
+     * @param string $prefix Regular expression matching the prefix of a line
+     * @return string The rewritten syntax
+     */
+    protected function rewrite_gfm_block($match, $prefix) {
+        $prefixes = [];
+        $lines    = [];
+        foreach(explode("\n", $match) as $line) {
+            preg_match($prefix, $line, $m);
+            $prefixes[] = $m[0];
+            $lines[]    = substr($line, strlen($m[0]));
+        }
+
+        /** @var helper_plugin_move_rewrite $Rewriter */
+        $Rewriter = plugin_load('helper', 'move_rewrite');
+        $Handler  = new helper_plugin_move_handler();
+        $Handler->init($this->id, $this->origID, $this->page_moves, $this->media_moves, $this->handlers);
+        $rewritten = explode("\n", $Rewriter->parse(implode("\n", $lines), $Handler));
+
+        // a rewrite only changes link targets, so the lines must still match up
+        if(count($rewritten) !== count($prefixes)) return $match;
+
+        foreach($rewritten as $i => $line) {
+            $rewritten[$i] = $prefixes[$i] . $line;
+        }
+        return implode("\n", $rewritten);
+    }
+
+    /**
+     * Handle rewriting of Markdown images, ![alt](source "title")
+     *
+     * @param string $match The text match
+     * @param string $state The starte of the parser
+     * @param int    $pos   The position in the input
+     * @return bool If parsing should be continued
+     */
+    public function gfm_media($match, $state, $pos) {
+        $this->wikitext .= $this->rewrite_gfm_media($match);
+        return true;
+    }
+
+    /**
+     * Rewrite a Markdown image
+     *
+     * @param string $match The text match of the image syntax
+     * @return string The rewritten syntax
+     */
+    protected function rewrite_gfm_media($match) {
+        $start = strpos($match, '](') + 2;
+        $start += strspn($match, " \t\n", $start);
+        $url = substr($match, $start, strcspn(substr($match, $start, -1), " \t\n"));
+
+        // parameters such as ?200x100 follow the last question mark, as in DokuWiki's own syntax
+        $qpos = strrpos($url, '?');
+        $src  = $qpos === false ? $url : substr($url, 0, $qpos);
+        if($src === '' || media_isexternal($src) || link_isinterwiki($src)) return $match;
+
+        $new_src = $this->resolveMoves($src, 'media');
+        $new_src = $this->relativeLink($src, $new_src, 'media');
+        if($new_src === $src) return $match;
+
+        return substr_replace($match, $new_src, $start, strlen($src));
     }
 
     /**
