@@ -208,7 +208,6 @@ class helper_plugin_move_rewrite extends Plugin {
      * @return string        The rewritten wiki text
      */
     public function rewrite($id, $text) {
-        global $conf;
         $meta = $this->getMoveMeta($id);
 
         $handlers = array();
@@ -237,7 +236,20 @@ class helper_plugin_move_rewrite extends Plugin {
          */
         Event::createAndTrigger('PLUGIN_MOVE_HANDLERS_REGISTER', $data);
 
+        $Handler = new helper_plugin_move_handler();
+        $Handler->init($id, $origin, $pages, $media, $handlers);
+        return $this->parse($text, $Handler);
+    }
 
+    /**
+     * Run the given move handler over a text
+     *
+     * @param string                     $text    The text to be rewritten
+     * @param helper_plugin_move_handler $Handler An initialized move handler
+     * @return string The rewritten wiki text
+     */
+    public function parse($text, $Handler) {
+        global $conf;
 
         // Create the parser
         if (class_exists(dokuwiki\Parsing\ModeRegistry::class)) {
@@ -251,9 +263,6 @@ class helper_plugin_move_rewrite extends Plugin {
             // p_get_parsermodes() populates the global $PARSER_MODES as a side effect
             $modes = p_get_parsermodes();
         }
-
-        $Handler = new helper_plugin_move_handler();
-        $Handler->init($id, $origin, $pages, $media, $handlers);
 
         // Use reflectiion to actually use our own handler (see docs at MoveHandler)
         $reflectParser = new ReflectionClass(Parser::class);
