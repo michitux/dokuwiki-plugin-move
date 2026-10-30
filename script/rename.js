@@ -47,11 +47,12 @@
                 id: JSINFO.id,
                 newid: newid,
                 media: doMedia ? 1 : 0,
+                sectok: JSINFO.move_sectok,
             },
             // redirect or display error
             function (result) {
                 if (result.error) {
-                    $dialog.html(result.error);
+                    $dialog.text(result.error);
                 } else {
                     window.location.href = result.redirect_url;
                 }
